@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Glasswing-grade security assessments for growing companies. NIST-aligned, AI-focused, Agents of Chaos methodology.">
+    <title>Glasswing-Grade Security | Dominion Labs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #0a0e27;
+            color: #e5e7eb;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            background-color: rgba(10, 14, 39, 0.95);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #818cf8;
+        }
+
+        nav a {
+            color: #9ca3af;
+            text-decoration: none;
+            margin-left: 2rem;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #818cf8;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 6rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: #d1d5db;
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(129, 140, 248, 0.4);
+        }
+
+        /* Service Tiers */
+        .services {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .services h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            color: #f3f4f6;
+        }
+
+        .services-subtitle {
+            text-align: center;
+            color: #9ca3af;
+            margin-bottom: 4rem;
+            font-size: 1.1rem;
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .service-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(129, 140, 248, 0.2);
+            border-color: rgba(99, 102, 241, 0.6);
+        }
+
+        .service-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #818cf8;
+        }
+
+        .service-card .price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #a78bfa;
+            margin-bottom: 1rem;
+        }
+
+        .service-card .duration {
+            color: #9ca3af;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .service-card ul {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .service-card li {
+            color: #d1d5db;
+            margin-bottom: 0.75rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .service-card li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #818cf8;
+            font-weight: bold;
+        }
+
+        .service-card .cta {
+            display: block;
+            background: rgba(129, 140, 248, 0.2);
+            color: #818cf8;
+            padding: 0.75rem 1.5rem;
+            text-align: center;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            border: 1px solid rgba(129, 140, 248, 0.5);
+            transition: all 0.3s;
+        }
+
+        .service-card .cta:hover {
+            background: rgba(129, 140, 248, 0.3);
+            border-color: rgba(129, 140, 248, 0.8);
+        }
+
+        /* Methodology Section */
+        .methodology {
+            padding: 6rem 2rem;
+            background: rgba(99, 102, 241, 0.05);
+            border-top: 1px solid rgba(99, 102, 241, 0.2);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .methodology h2 {
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            text-align: center;
+            color: #f3f4f6;
+        }
+
+        .methodology-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .methodology-item {
+            background: rgba(10, 14, 39, 0.5);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 2rem;
+            border-radius: 0.75rem;
+        }
+
+        .methodology-item h3 {
+            color: #818cf8;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .methodology-item p {
+            color: #d1d5db;
+            font-size: 0.95rem;
+        }
+
+        /* Findings Preview */
+        .findings {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .findings h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: #f3f4f6;
+        }
+
+        .findings-subtitle {
+            color: #9ca3af;
+            margin-bottom: 3rem;
+            font-size: 1.05rem;
+        }
+
+        .findings-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+
+        .findings-table th {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 1rem;
+            text-align: left;
+            color: #818cf8;
+            font-weight: 600;
+        }
+
+        .findings-table td {
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            padding: 0.75rem 1rem;
+            color: #d1d5db;
+        }
+
+        .findings-table tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .severity-critical {
+            color: #f87171;
+            font-weight: 600;
+        }
+
+        .severity-high {
+            color: #fb923c;
+            font-weight: 600;
+        }
+
+        .severity-medium {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+
+        /* Trust Signals */
+        .trust {
+            padding: 4rem 2rem;
+            background: rgba(99, 102, 241, 0.05);
+            border-top: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .trust h3 {
+            text-align: center;
+            color: #9ca3af;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .tools-list {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .tool {
+            background: rgba(10, 14, 39, 0.7);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            color: #d1d5db;
+            font-size: 0.95rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 6rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-top: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #f3f4f6;
+        }
+
+        .cta-section p {
+            font-size: 1.1rem;
+            color: #d1d5db;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Footer */
+        footer {
+            background-color: rgba(10, 14, 39, 0.9);
+            border-top: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: #6b7280;
+        }
+
+        footer p {
+            margin-bottom: 1rem;
+        }
+
+        footer a {
+            color: #818cf8;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .services h2, .methodology h2, .findings h2, .cta-section h2 {
+                font-size: 2rem;
+            }
+
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            nav a {
+                margin-left: 0;
+                margin-right: 1rem;
+            }
+
+            .findings-table {
+                font-size: 0.85rem;
+            }
+
+            .findings-table th, .findings-table td {
+                padding: 0.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .service-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .findings-table {
+                font-size: 0.8rem;
+            }
+
+            .tools-list {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .tool {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">Dominion Labs</div>
+        <div>
+            <a href="#services">Services</a>
+            <a href="#methodology">Methodology</a>
+            <a href="#samples">Samples</a>
+            <a href="#contact">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Glasswing-Grade Security</h1>
+        <p>Defensive security assessments informed by Anthropic's Project Glasswing research and the Agents of Chaos framework. Built for growing companies who can't access Glasswing directly.</p>
+        <button class="cta-button" onclick="scrollToSection('contact')">Book a Security Snapshot</button>
+    </section>
+
+    <!-- Service Tiers -->
+    <section class="services" id="services">
+        <h2>Security Assessment Tiers</h2>
+        <p class="services-subtitle">Choose the depth that matches your timeline and budget.</p>
+        
+        <div class="service-grid">
+            <!-- Snapshot -->
+            <div class="service-card">
+                <h3>Security Snapshot</h3>
+                <div class="price">$500</div>
+                <div class="duration">2-4 hours | Rapid baseline</div>
+                <ul>
+                    <li>Automated codebase scan (Guardian)</li>
+                    <li>Dependency analysis (Mythos)</li>
+                    <li>STRIDE threat model (high-level)</li>
+                    <li>Top 10 critical findings</li>
+                    <li>Executive summary + remediation guide</li>
+                </ul>
+                <a href="https://buy.stripe.com/eVq4gzfHU9ZD7V0e1weQM0a" class="cta">Start Snapshot</a>
+            </div>
+
+            <!-- Defensive Assessment -->
+            <div class="service-card">
+                <h3>Defensive Assessment</h3>
+                <div class="price">$2,000</div>
+                <div class="duration">1 week | Comprehensive audit</div>
+                <ul>
+                    <li>Complete codebase security audit</li>
+                    <li>Agents of Chaos failure mode mapping</li>
+                    <li>STRIDE per-service threat model</li>
+                    <li>30-40 findings (detailed)</li>
+                    <li>Remediation playbook + 30-day follow-up</li>
+                    <li>Email support for implementation</li>
+                </ul>
+                <a href="https://buy.stripe.com/aFa4gzfHU2xb3EK5v0eQM0b" class="cta">Schedule Assessment</a>
+            </div>
+
+            <!-- Enterprise Hardening -->
+            <div class="service-card">
+                <h3>Enterprise Hardening</h3>
+                <div class="price">$5,000–10,000</div>
+                <div class="duration">4 weeks | Full transformation</div>
+                <ul>
+                    <li>Everything in Defensive Assessment</li>
+                    <li>Agent hardening implementation</li>
+                    <li>Auth/authz architecture setup</li>
+                    <li>CI/CD security pipeline</li>
+                    <li>Quarterly red-team reviews (1 year)</li>
+                    <li>Incident response plan</li>
+                    <li>90-day implementation support</li>
+                </ul>
+                <a href="https://buy.stripe.com/aFabJ18fs3Bf7V09LgeQM0c" class="cta">Discuss Enterprise Plan</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Methodology -->
+    <section class="methodology" id="methodology">
+        <h2>Our Methodology</h2>
+        
+        <div class="methodology-grid">
+            <div class="methodology-item">
+                <h3>STRIDE Threat Modeling</h3>
+                <p>Model threats across Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege. Design-time security thinking, not just code review.</p>
+            </div>
+
+            <div class="methodology-item">
+                <h3>Agents of Chaos Framework</h3>
+                <p>Assess resilience across 8 failure modes: Prompt Injection, Authorization Bypass, Dependency Poisoning, Configuration Drift, Monitoring Gaps, Failure Cascade, Recovery Weakness, Attestation Failure.</p>
+            </div>
+
+            <div class="methodology-item">
+                <h3>NIST AI Agent Standards</h3>
+                <p>Align with NIST's Feb 2026 AI Agent Standards for risk assessment, responsible AI practices, operational security, and supply chain security.</p>
+            </div>
+
+            <div class="methodology-item">
+                <h3>OWASP Top 10 + Extended</h3>
+                <p>Traditional application security (injection, broken auth, sensitive data exposure) plus AI-specific risks (LLM integration, model poisoning, insufficient monitoring).</p>
+            </div>
+
+            <div class="methodology-item">
+                <h3>Guardian Static Analysis</h3>
+                <p>Our proprietary engine scans for security anti-patterns, misconfigurations, and AI-specific risks across all code paths. No false positives; real, actionable findings.</p>
+            </div>
+
+            <div class="methodology-item">
+                <h3>Glasswing-Informed</h3>
+                <p>Built on research from Anthropic's $100M Project Glasswing, a defensive cybersecurity coalition strengthening defenses for AI safety, open-source, and critical infrastructure.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sample Findings -->
+    <section class="findings" id="samples">
+        <h2>Sample Findings</h2>
+        <p class="findings-subtitle">Real vulnerabilities from recent assessments (anonymized). This is the caliber of findings you'll get.</p>
+        
+        <table class="findings-table">
+            <thead>
+                <tr>
+                    <th>Finding</th>
+                    <th>Severity</th>
+                    <th>Category</th>
+                    <th>Remediation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Database credentials hardcoded in config file</td>
+                    <td><span class="severity-critical">CRITICAL</span></td>
+                    <td>Configuration</td>
+                    <td>Move to environment variables / secrets manager</td>
+                </tr>
+                <tr>
+                    <td>JWT tokens lack expiration and revocation mechanism</td>
+                    <td><span class="severity-high">HIGH</span></td>
+                    <td>Authentication</td>
+                    <td>Add token expiration (15 min) and refresh token rotation</td>
+                </tr>
+                <tr>
+                    <td>LLM prompts directly interpolate user input (injection vulnerability)</td>
+                    <td><span class="severity-high">HIGH</span></td>
+                    <td>AI Agent Security</td>
+                    <td>Sanitize inputs, use structured output, add jailbreak detection</td>
+                </tr>
+                <tr>
+                    <td>API endpoints lack authorization checks (multi-tenant data leak)</td>
+                    <td><span class="severity-critical">CRITICAL</span></td>
+                    <td>Authorization</td>
+                    <td>Validate user ownership for all resource access</td>
+                </tr>
+                <tr>
+                    <td>Missing rate limiting on authentication endpoints</td>
+                    <td><span class="severity-high">HIGH</span></td>
+                    <td>Rate Limiting</td>
+                    <td>Implement 5-failed-attempt lockout (15-min cooldown)</td>
+                </tr>
+                <tr>
+                    <td>No audit logging for privileged operations</td>
+                    <td><span class="severity-medium">MEDIUM</span></td>
+                    <td>Logging & Monitoring</td>
+                    <td>Add audit logging; store in immutable, append-only log</td>
+                </tr>
+                <tr>
+                    <td>Dependency vulnerability in lodash (CVE-2021-23337)</td>
+                    <td><span class="severity-medium">MEDIUM</span></td>
+                    <td>Supply Chain</td>
+                    <td>Upgrade to lodash 4.17.21+; add security gate in CI/CD</td>
+                </tr>
+                <tr>
+                    <td>CORS configured with wildcard origin</td>
+                    <td><span class="severity-high">HIGH</span></td>
+                    <td>Configuration</td>
+                    <td>Whitelist specific origins; validate origin header</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Trust Signals -->
+    <section class="trust">
+        <h3>Tools & Research We Use</h3>
+        <div class="tools-list">
+            <div class="tool">Guardian (Dominion Labs proprietary static analysis)</div>
+            <div class="tool">Mythos Analyzer (dependency scanning & supply chain risk)</div>
+            <div class="tool">Agent Hardener (AI safety validation)</div>
+            <div class="tool">NIST AI Agent Standards (Feb 2026)</div>
+            <div class="tool">Agents of Chaos framework (8 failure modes)</div>
+            <div class="tool">STRIDE threat modeling</div>
+            <div class="tool">OWASP Top 10 + AI extensions</div>
+            <div class="tool">Project Glasswing research</div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section" id="contact">
+        <h2>Start Your Security Assessment Today</h2>
+        <p>Get a professional security baseline in as little as 2 hours. Book a Security Snapshot or discuss which tier matches your needs.</p>
+        <button class="cta-button" onclick="contactUs()">Schedule a 30-Min Call</button>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 Dominion Labs Security Consulting. All rights reserved.</p>
+        <p>
+            <a href="mailto:security@dominion-labs.com">security@dominion-labs.com</a> | 
+            <a href="tel:+1-555-123-4567">+1 (555) 123-4567</a>
+        </p>
+        <p>
+            <a href="/terms">Terms of Service</a> | 
+            <a href="/privacy">Privacy Policy</a> | 
+            <a href="/nda">NDA Template</a>
+        </p>
+    </footer>
+
+    <script>
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function contactUs() {
+            // Replace with your actual contact method (Calendly, Typeform, etc.)
+            alert('Redirecting to scheduling... In production, this would link to Calendly or your booking system.');
+            // window.location.href = 'https://calendly.com/your-scheduling-link';
+        }
+    </script>
+</body>
+</html>

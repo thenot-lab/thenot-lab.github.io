@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dominion Labs — Building What Matters</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0f;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+            padding: 1rem 2rem;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #7c3aed;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #a0aec0;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a:hover {
+            color: #7c3aed;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem;
+            }
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* Hero Section */
+        .hero {
+            margin-top: 4rem;
+            padding: 8rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(10, 10, 15, 1) 50%, rgba(124, 58, 237, 0.05) 100%);
+            border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff 0%, #a0aec0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: #a0aec0;
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #7c3aed;
+            color: white;
+            box-shadow: 0 0 30px rgba(124, 58, 237, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #6d28d9;
+            box-shadow: 0 0 40px rgba(124, 58, 237, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #a0aec0;
+            border: 1px solid rgba(124, 58, 237, 0.5);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(124, 58, 237, 0.1);
+            color: #7c3aed;
+            border-color: #7c3aed;
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 4rem 1rem;
+                margin-top: 3rem;
+            }
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+        }
+
+        /* Products Section */
+        .products {
+            padding: 5rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background: rgba(124, 58, 237, 0.05);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            padding: 2.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card:hover {
+            border-color: rgba(124, 58, 237, 0.5);
+            background: rgba(124, 58, 237, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(124, 58, 237, 0.15);
+        }
+
+        .product-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .product-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #7c3aed;
+        }
+
+        .product-card p {
+            color: #a0aec0;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .product-link {
+            color: #7c3aed;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+            display: inline-block;
+        }
+
+        .product-link:hover {
+            color: #a78bfa;
+            text-decoration: underline;
+        }
+
+        /* About Section */
+        .about {
+            padding: 5rem 2rem;
+            background: rgba(124, 58, 237, 0.05);
+            border-top: 1px solid rgba(124, 58, 237, 0.2);
+            border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+        }
+
+        .about-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .about-content h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: #ffffff;
+        }
+
+        .about-content p {
+            font-size: 1.1rem;
+            color: #a0aec0;
+            line-height: 1.9;
+            margin-bottom: 1rem;
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 5rem 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .contact h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .contact p {
+            font-size: 1.1rem;
+            color: #a0aec0;
+            margin-bottom: 2rem;
+        }
+
+        .contact-email {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 0.5rem;
+            color: #7c3aed;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .contact-email:hover {
+            background: rgba(124, 58, 237, 0.2);
+            border-color: #7c3aed;
+        }
+
+        /* Footer */
+        footer {
+            background: #000000;
+            border-top: 1px solid rgba(124, 58, 237, 0.1);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: #a0aec0;
+        }
+
+        footer p {
+            margin-bottom: 1rem;
+        }
+
+        footer .copyright {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .products {
+                padding: 3rem 1rem;
+            }
+            .about {
+                padding: 3rem 1rem;
+            }
+            .contact {
+                padding: 3rem 1rem;
+            }
+            .section-title {
+                font-size: 1.75rem;
+            }
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-brand">Dominion Labs</div>
+        <ul class="nav-links">
+            <li><a href="#products">Products</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Dominion Labs</h1>
+        <p class="hero-subtitle">Building What Matters</p>
+        <p style="font-size: 1.05rem; color: #a0aec0; max-width: 700px; margin: 0 auto 2rem;">
+            Independent software lab creating developer tools, AI companions, and security solutions that empower builders.
+        </p>
+        <div class="hero-cta">
+            <a href="#products" class="btn btn-primary">Explore Products</a>
+            <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="products">
+        <h2 class="section-title">Our Products</h2>
+        <div class="products-grid">
+            <div class="product-card">
+                <div class="product-icon">🤖</div>
+                <h3>CompanionBot</h3>
+                <p>Custom AI personas on Telegram with persistent memory, analytics, and multi-model support. Your AI companion, configured exactly how you want it.</p>
+                <a href="companion_bot.html" class="product-link">Learn More →</a>
+            </div>
+
+            <div class="product-card">
+                <div class="product-icon">🔒</div>
+                <h3>Eli Guardian</h3>
+                <p>Zero-dependency Python security scanner with STRIDE threat modeling and semantic analysis. Security that thinks like a defender.</p>
+                <a href="eli_guardian.html" class="product-link">Learn More →</a>
+            </div>
+
+            <div class="product-card">
+                <div class="product-icon">🛡️</div>
+                <h3>Security Consulting</h3>
+                <p>Expert threat modeling, penetration testing, and security architecture reviews. Protect what matters with professional guidance.</p>
+                <a href="security_consulting.html" class="product-link">Learn More →</a>
+            </div>
+
+            <div class="product-card">
+                <div class="product-icon">📊</div>
+                <h3>Custom Development</h3>
+                <p>Full-stack Python and TypeScript solutions. From AI integrations to DevOps infrastructure, we build production systems.</p>
+                <a href="#contact" class="product-link">Learn More →</a>
+            </div>
+
+            <div class="product-card">
+                <div class="product-icon">💻</div>
+                <h3>Developer Tools</h3>
+                <p>Open-source and commercial tools that make developers' lives easier. Simple, powerful, dependency-free software.</p>
+                <a href="#contact" class="product-link">Learn More →</a>
+            </div>
+
+            <div class="product-card">
+                <div class="product-icon">🧠</div>
+                <h3>AI Integration</h3>
+                <p>Custom AI solutions leveraging Claude, GPT-4, and other models. From chatbots to autonomous agents, we build intelligent systems.</p>
+                <a href="#contact" class="product-link">Learn More →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="about-content">
+            <h2>About Dominion Labs</h2>
+            <p>
+                We're an independent software lab focused on building developer tools, AI companions, and security solutions that actually solve real problems.
+            </p>
+            <p>
+                Every product is designed with a principle: simplicity, security, and substance. No bloat. No dependencies you don't need. Just powerful software that works.
+            </p>
+            <p>
+                Founded on the belief that small, focused teams can create tools that matter—tools developers actually want to use.
+            </p>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <h2>Let's Talk</h2>
+        <p>Interested in our products? Have a project in mind? Let's connect.</p>
+        <a href="mailto:hello@dominionlabs.dev" class="contact-email">hello@dominionlabs.dev</a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>Built by <strong>Dominion Labs</strong></p>
+        <p class="copyright">&copy; 2026 Dominion Labs. All rights reserved.</p>
+    </footer>
+</body>
+</html>

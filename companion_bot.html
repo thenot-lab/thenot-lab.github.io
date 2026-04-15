@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CompanionBot — Your AI Companion, Your Way</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0f;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+            padding: 1rem 2rem;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #7c3aed;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #a0aec0;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a:hover {
+            color: #7c3aed;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem;
+            }
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* Hero Section */
+        .hero {
+            margin-top: 4rem;
+            padding: 6rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(10, 10, 15, 1) 100%);
+            border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff 0%, #a0aec0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: #a0aec0;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #7c3aed;
+            color: white;
+            box-shadow: 0 0 30px rgba(124, 58, 237, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #6d28d9;
+            box-shadow: 0 0 40px rgba(124, 58, 237, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #a0aec0;
+            border: 1px solid rgba(124, 58, 237, 0.5);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(124, 58, 237, 0.1);
+            color: #7c3aed;
+            border-color: #7c3aed;
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 4rem 1rem;
+                margin-top: 3rem;
+            }
+            .hero h1 {
+                font-size: 2.25rem;
+            }
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+        }
+
+        /* Features Section */
+        .features {
+            padding: 5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: rgba(124, 58, 237, 0.05);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            padding: 2rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(124, 58, 237, 0.5);
+            background: rgba(124, 58, 237, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+            color: #7c3aed;
+        }
+
+        .feature-card p {
+            color: #a0aec0;
+            font-size: 0.95rem;
+        }
+
+        /* Pricing Section */
+        .pricing {
+            padding: 5rem 2rem;
+            background: rgba(124, 58, 237, 0.05);
+            border-top: 1px solid rgba(124, 58, 237, 0.2);
+            border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background: #0a0a0f;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            padding: 2.5rem;
+            border-radius: 0.75rem;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .pricing-card.featured {
+            border-color: #7c3aed;
+            background: rgba(124, 58, 237, 0.1);
+            transform: scale(1.05);
+        }
+
+        .pricing-card:hover {
+            border-color: #7c3aed;
+            box-shadow: 0 15px 40px rgba(124, 58, 237, 0.2);
+        }
+
+        .pricing-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-card .price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #7c3aed;
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-card .period {
+            color: #a0aec0;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .pricing-features li {
+            padding: 0.75rem 0;
+            color: #a0aec0;
+            border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+        }
+
+        .pricing-features li:before {
+            content: "✓ ";
+            color: #7c3aed;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .pricing-card .btn {
+            width: 100%;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+        }
+
+        /* FAQ Section */
+        .faq {
+            padding: 5rem 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+            padding-bottom: 2rem;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-item h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            color: #7c3aed;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .faq-item h4:hover {
+            color: #9f7aea;
+        }
+
+        .faq-item p {
+            color: #a0aec0;
+            line-height: 1.8;
+        }
+
+        /* Footer */
+        footer {
+            background: #000000;
+            border-top: 1px solid rgba(124, 58, 237, 0.1);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: #a0aec0;
+        }
+
+        footer p {
+            margin-bottom: 1rem;
+        }
+
+        footer .copyright {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .features {
+                padding: 3rem 1rem;
+            }
+            .pricing {
+                padding: 3rem 1rem;
+            }
+            .faq {
+                padding: 3rem 1rem;
+            }
+            .section-title {
+                font-size: 1.75rem;
+            }
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Gradient text for accent */
+        .gradient-text {
+            background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-brand">CompanionBot</div>
+        <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#faq">FAQ</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>CompanionBot</h1>
+        <h2 style="font-size: 1.75rem; font-weight: 500; color: #a0aec0; margin-bottom: 1rem;">Your AI Companion, Your Way</h2>
+        <p class="hero-subtitle">
+            Custom AI personas on Telegram. Memory, analytics, multi-model support.
+        </p>
+        <div class="hero-cta">
+            <a href="#pricing" class="btn btn-primary">Get Started Free</a>
+            <a href="#features" class="btn btn-secondary">Learn More</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <h2 class="section-title">Powerful Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎭</div>
+                <h3>Custom Personas</h3>
+                <p>Create unique AI personalities tailored to your needs. From mentors to creative collaborators, your AI works exactly how you want.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💾</div>
+                <h3>Persistent Memory</h3>
+                <p>Your AI remembers context across conversations. Build meaningful relationships with conversation history and learned preferences.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>Multi-Model Support</h3>
+                <p>Choose from Claude, GPT-4, Gemini, and more. Switch models anytime to find what works best for your use case.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Admin Analytics</h3>
+                <p>Deep insights into conversation patterns, engagement, and usage. Understand your AI's performance at a glance.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing">
+        <h2 class="section-title">Simple, Transparent Pricing</h2>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>Basic</h3>
+                <div class="price">$5<span style="font-size: 1.25rem; color: #a0aec0;">/mo</span></div>
+                <p class="period">Perfect for getting started</p>
+                <ul class="pricing-features">
+                    <li>1 Custom Persona</li>
+                    <li>1,000 Messages/month</li>
+                    <li>Basic Telegram Integration</li>
+                    <li>Community Support</li>
+                </ul>
+                <a href="https://buy.stripe.com/7sY7sLcvI3Bf8Z40aGeQM05" class="btn btn-primary">Get Started</a>
+            </div>
+
+            <div class="pricing-card featured">
+                <h3>Pro</h3>
+                <div class="price">$15<span style="font-size: 1.25rem; color: #a0aec0;">/mo</span></div>
+                <p class="period">Most popular for creators</p>
+                <ul class="pricing-features">
+                    <li>Unlimited Personas</li>
+                    <li>10,000 Messages/month</li>
+                    <li>Priority Support</li>
+                    <li>Advanced Analytics</li>
+                    <li>Multi-Model Switching</li>
+                </ul>
+                <a href="https://buy.stripe.com/fZu3cvgLY8Vza38g9EeQM06" class="btn btn-primary">Get Started</a>
+            </div>
+
+            <div class="pricing-card">
+                <h3>Enterprise</h3>
+                <div class="price">$49<span style="font-size: 1.25rem; color: #a0aec0;">/mo</span></div>
+                <p class="period">Full power, custom setup</p>
+                <ul class="pricing-features">
+                    <li>Unlimited Everything</li>
+                    <li>API Access</li>
+                    <li>Custom Model Training</li>
+                    <li>99.9% SLA</li>
+                    <li>Dedicated Support</li>
+                </ul>
+                <a href="https://buy.stripe.com/3cIfZhcvI4Fjcbg0aGeQM07" class="btn btn-primary">Get Started</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="faq">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+
+        <div class="faq-item">
+            <h4>How does CompanionBot work?</h4>
+            <p>CompanionBot integrates with Telegram to provide AI conversations. Create a persona with custom instructions, and your AI companion starts learning from your conversations. It uses your chosen language model (Claude, GPT-4, or Gemini) and maintains context across all messages.</p>
+        </div>
+
+        <div class="faq-item">
+            <h4>Which AI models can I use?</h4>
+            <p>We support Claude 3, GPT-4, GPT-3.5, Google Gemini, and more. Pro and Enterprise tiers can switch between models instantly. Your conversations can use different models depending on what works best for each task.</p>
+        </div>
+
+        <div class="faq-item">
+            <h4>Can I customize my AI's personality?</h4>
+            <p>Absolutely! Write custom system prompts, define personality traits, set conversation rules, and control response styles. You have complete control over how your AI behaves and communicates.</p>
+        </div>
+
+        <div class="faq-item">
+            <h4>Is my data private?</h4>
+            <p>Yes. We encrypt all conversations end-to-end. Your personal data and conversation history stay private. We don't use your data to train models or share it with third parties. Enterprise customers can host on private infrastructure.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>Built by <strong>Dominion Labs</strong></p>
+        <p class="copyright">&copy; 2026 Dominion Labs. All rights reserved.</p>
+    </footer>
+</body>
+</html>
