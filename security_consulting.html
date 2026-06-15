@@ -624,14 +624,14 @@
     <section class="cta-section" id="contact">
         <h2>Start Your Security Assessment Today</h2>
         <p>Get a professional security baseline in as little as 2 hours. Book a Security Snapshot or discuss which tier matches your needs.</p>
-        <a href="mailto:brayd@dominionlabs.ai" class="cta-button">Schedule a 30-Min Call</a>
+        <a href="#" class="cta-button dl-mail" data-u="brayd" data-d="dominionlabs.ai" rel="nofollow">Schedule a 30-Min Call</a>
     </section>
 
     <!-- Footer -->
     <footer>
         <p>&copy; 2026 Dominion Labs Security Consulting. All rights reserved.</p>
         <p>
-            <a href="mailto:brayd@dominionlabs.ai">brayd@dominionlabs.ai</a>
+            <a href="#" class="dl-mail" data-u="brayd" data-d="dominionlabs.ai" rel="nofollow">brayd&#32;[at]&#32;dominionlabs.ai</a>
         </p>
     </footer>
 
@@ -642,7 +642,7 @@
                 element.scrollIntoView({ behavior: 'smooth' });
             }
         }
-
+        document.querySelectorAll('a.dl-mail').forEach(function(a){var e=a.dataset.u+'@'+a.dataset.d;a.href='mailto:'+e;if(/\[at\]/.test(a.textContent))a.textContent=e;});
     </script>
 </body>
 </html>

@@ -415,7 +415,7 @@
     <section id="contact" class="contact">
         <h2>Let's Talk</h2>
         <p>Interested in our products? Have a project in mind? Let's connect.</p>
-        <a href="mailto:brayd@dominionlabs.ai" class="contact-email">brayd@dominionlabs.ai</a>
+        <a href="#" class="contact-email dl-mail" data-u="brayd" data-d="dominionlabs.ai" rel="nofollow">brayd&#32;[at]&#32;dominionlabs.ai</a>
     </section>
 
     <!-- Footer -->
@@ -423,5 +423,9 @@
         <p>Built by <strong>Dominion Labs</strong></p>
         <p class="copyright">&copy; 2026 Dominion Labs. All rights reserved.</p>
     </footer>
+    <script>
+    /* anti-harvest: assemble mailto from split data attrs at runtime; raw HTML has no plaintext address */
+    document.querySelectorAll('a.dl-mail').forEach(function(a){var e=a.dataset.u+'@'+a.dataset.d;a.href='mailto:'+e;if(/\[at\]/.test(a.textContent))a.textContent=e;});
+    </script>
 </body>
 </html>
