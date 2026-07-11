@@ -32,6 +32,13 @@ One record per model call (node), appended to a JSONL log.
 }
 ```
 
+`cost_usd` and `confidence` are `number | null`. `null` means **not yet
+computed** — cost pricing lands with the utilization work, and `confidence` is
+populated only when a model self-reports it. Producers emit a number once it's
+available and `null` until then; aggregators must **skip nulls, not coerce
+them to 0.0** (a coerced zero would understate cost and drag confidence
+averages down).
+
 `escalation_trigger` values are the **canonical signal names from
 `routing/model_tree.json#escalation`** — telemetry producers and dashboards
 must use them verbatim (plus `null` for "not escalated" and `policy` for

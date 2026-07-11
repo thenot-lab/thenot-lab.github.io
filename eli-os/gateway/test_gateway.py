@@ -95,27 +95,45 @@ class PayloadTests(unittest.TestCase):
         cls.policy = gateway.load_policy()
 
     def _payload_for(self, task_type):
-        decision = gateway.route({"task_type": task_type}, self.policy)
-        return decision, gateway.build_payload(decision, {"prompt": "x", "system": "s"})
+        return gateway.build_payload(
+            gateway.route({"task_type": task_type}, self.policy),
+            {"prompt": "x", "system": "s"})
 
     def test_top_tier_gets_fallbacks_and_no_thinking_param(self):
-        decision, payload = self._payload_for("architecture_decision")
+        payload = self._payload_for("architecture_decision")
         self.assertEqual(payload["fallbacks"], [{"model": "claude-opus-4-8"}])
         self.assertNotIn("thinking", payload)  # Fable 5: always on, param rejected
 
     def test_opus_gets_adaptive_thinking_and_effort(self):
-        decision, payload = self._payload_for("multi_step_plan")
+        payload = self._payload_for("multi_step_plan")
         self.assertEqual(payload["thinking"], {"type": "adaptive"})
         self.assertEqual(payload["output_config"], {"effort": "high"})
 
     def test_haiku_gets_no_thinking_or_effort(self):
-        decision, payload = self._payload_for("chat")
+        payload = self._payload_for("chat")
         self.assertNotIn("thinking", payload)
         self.assertNotIn("output_config", payload)
 
     def test_system_prefix_carries_cache_control(self):
-        _, payload = self._payload_for("chat")
+        payload = self._payload_for("chat")
         self.assertEqual(payload["system"][0]["cache_control"], {"type": "ephemeral"})
+
+
+class RetryAfterTests(unittest.TestCase):
+    def test_delta_seconds(self):
+        self.assertEqual(gateway._retry_after("5", 0), 5.0)
+
+    def test_http_date_does_not_raise(self):
+        # An HTTP-date must not blow up float(); it clamps to <= 60s.
+        wait = gateway._retry_after("Wed, 21 Oct 2035 07:28:00 GMT", 0)
+        self.assertLessEqual(wait, 60.0)
+        self.assertGreaterEqual(wait, 0.0)
+
+    def test_garbage_falls_back_to_backoff(self):
+        self.assertEqual(gateway._retry_after("not-a-date", 1), 4)  # 2**(1+1)
+
+    def test_missing_header_uses_backoff(self):
+        self.assertEqual(gateway._retry_after(None, 2), 8)  # 2**(2+1)
 
 
 class TelemetryTests(unittest.TestCase):
@@ -135,27 +153,33 @@ class TelemetryTests(unittest.TestCase):
         if os.path.exists(self.tmp.name):
             os.unlink(self.tmp.name)
 
-    def test_every_call_writes_a_schema_shaped_record(self):
-        gateway.handle({"project": "eli_guardian",
-                        "task_type": "finding_triage_dedup",
-                        "dry_run": True}, self.policy, live=False)
+    def test_every_completion_writes_a_schema_shaped_record(self):
+        gateway.complete({"project": "eli_guardian",
+                          "task_type": "finding_triage_dedup",
+                          "dry_run": True}, self.policy)
         lines = Path(self.tmp.name).read_text().strip().split("\n")
         self.assertEqual(len(lines), 1)
         rec = json.loads(lines[0])
         for field in ("ts", "record", "request_id", "project", "tier", "model",
                       "route_reason", "escalated", "escalation_trigger", "tokens",
-                      "cache_hit", "batch", "latency_ms", "guardrail_flags", "outcome"):
+                      "cache_hit", "batch", "latency_ms", "cost_usd", "confidence",
+                      "guardrail_flags", "outcome"):
             self.assertIn(field, rec, f"telemetry record missing {field}")
         self.assertEqual(rec["record"], "model_call")
         self.assertEqual(rec["tier"], "haiku")
         self.assertEqual(rec["outcome"], "ok")
         self.assertEqual(rec["tokens"], {"in": 0, "out": 0, "cached": 0})
 
+    def test_route_only_writes_no_telemetry(self):
+        # Exploration traffic must not pollute top_tier_share / budget metrics.
+        gateway.route({"task_type": "architecture_decision"}, self.policy)
+        self.assertFalse(Path(self.tmp.name).exists())
+        self.assertIsNone(gateway.top_tier_share())
+
     def test_top_tier_share_and_budget_alert(self):
         for _ in range(9):
-            gateway.handle({"task_type": "architecture_decision", "dry_run": True},
-                           self.policy, live=False)
-        gateway.handle({"task_type": "chat", "dry_run": True}, self.policy, live=False)
+            gateway.complete({"task_type": "architecture_decision", "dry_run": True}, self.policy)
+        gateway.complete({"task_type": "chat", "dry_run": True}, self.policy)
         share = gateway.top_tier_share()
         self.assertAlmostEqual(share, 0.9)
         decision = gateway.route({"task_type": "architecture_decision"}, self.policy)

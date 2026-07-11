@@ -33,11 +33,13 @@ Env: ANTHROPIC_API_KEY (required for live calls; dry_run works without),
 import json
 import os
 import sys
+import threading
 import time
 import urllib.error
 import urllib.request
 import uuid
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -52,6 +54,14 @@ RETRYABLE = {429, 500, 529}
 HERE = Path(__file__).resolve().parent
 POLICY_PATH = Path(os.environ.get("ELI_MODEL_TREE", HERE.parent / "routing" / "model_tree.json"))
 TELEMETRY_PATH = Path(os.environ.get("ELI_TELEMETRY", "telemetry.jsonl"))
+MAX_BODY_BYTES = 1_048_576  # 1 MiB cap on POST bodies
+
+# Serializes JSONL appends so concurrent ThreadingHTTPServer requests can't
+# interleave partial lines (which would then break top_tier_share parsing).
+_TELEMETRY_LOCK = threading.Lock()
+# top_tier_share() is called on every top-tier route and every /healthz probe;
+# cache the scan keyed by (mtime, size) so unchanged files aren't re-read.
+_SHARE_CACHE = {}
 
 # Crude content classifier: only consulted when the caller sends no task_type.
 # Explicit metadata always wins — this is a fallback, not the router.
@@ -220,15 +230,30 @@ def call_model(decision, request, api_key=None, max_retries=2):
             detail = e.read().decode(errors="replace")
             last_err = RuntimeError(f"HTTP {e.code}: {detail[:500]}")
             if e.code not in RETRYABLE or attempt == max_retries:
-                raise last_err
-            wait = float(e.headers.get("retry-after") or 2 ** (attempt + 1))
-            time.sleep(wait)
+                raise last_err from e
+            time.sleep(_retry_after(e.headers.get("retry-after"), attempt))
         except urllib.error.URLError as e:
             last_err = RuntimeError(f"connection error: {e.reason}")
             if attempt == max_retries:
-                raise last_err
+                raise last_err from e
             time.sleep(2 ** (attempt + 1))
     raise last_err
+
+
+def _retry_after(header, attempt):
+    """Retry-After is delta-seconds or an HTTP-date; fall back to backoff."""
+    backoff = 2 ** (attempt + 1)
+    if not header:
+        return backoff
+    try:
+        return float(header)
+    except ValueError:
+        pass
+    try:
+        delta = (parsedate_to_datetime(header) - datetime.now(timezone.utc)).total_seconds()
+        return max(0.0, min(delta, 60.0))  # clamp to a sane ceiling
+    except (TypeError, ValueError):
+        return backoff
 
 
 def extract_text(response):
@@ -245,8 +270,11 @@ def extract_text(response):
 def write_telemetry(record, path=None):
     path = Path(path or TELEMETRY_PATH)
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "a") as f:
-        f.write(json.dumps(record, separators=(",", ":")) + "\n")
+    line = json.dumps(record, separators=(",", ":")) + "\n"
+    # Lock + a single write() keeps concurrent appends from interleaving.
+    with _TELEMETRY_LOCK:
+        with open(path, "a") as f:
+            f.write(line)
 
 
 def model_call_record(decision, request, response, latency_ms, outcome="ok",
@@ -273,6 +301,7 @@ def model_call_record(decision, request, response, latency_ms, outcome="ok",
         "cache_hit": usage.get("cache_read_input_tokens", 0) > 0,
         "batch": decision["batch"],
         "latency_ms": latency_ms,
+        # null until later phases compute them (spec: telemetry_spec.md).
         "cost_usd": None,
         "confidence": None,
         "guardrail_flags": ["none"],
@@ -298,10 +327,22 @@ def gate_record(request_id, principal, kind, action, decision_str,
 
 
 def top_tier_share(path=None):
-    """Fraction of logged model calls routed to the top tier; None if no log."""
+    """Fraction of logged model calls routed to the top tier; None if no log.
+
+    Cached by (mtime, size): a health-probe storm or a burst of top-tier
+    routes re-reads the JSONL only when it has actually changed since the last
+    scan, keeping this O(1) between writes instead of O(n) per call.
+    """
     path = Path(path or TELEMETRY_PATH)
-    if not path.exists():
+    try:
+        stat = path.stat()
+    except FileNotFoundError:
         return None
+    key = str(path)
+    cached = _SHARE_CACHE.get(key)
+    signature = (stat.st_mtime_ns, stat.st_size)
+    if cached and cached[0] == signature:
+        return cached[1]
     total = top = 0
     with open(path) as f:
         for line in f:
@@ -313,17 +354,25 @@ def top_tier_share(path=None):
                 continue
             total += 1
             top += rec.get("tier") == "top"
-    return (top / total) if total else None
+    share = (top / total) if total else None
+    _SHARE_CACHE[key] = (signature, share)
+    return share
 
 
-def handle(request, policy, live=True):
-    """Full pipeline: route → (call) → telemetry. Returns (decision, response)."""
+def complete(request, policy):
+    """Route → call model → write telemetry. Returns (decision, response).
+
+    Always represents an intended model call, so it always writes one
+    `model_call` record (a dry_run stands in for a real call and still logs).
+    Route-only callers use `route()` directly and write nothing, so
+    exploration traffic doesn't pollute top_tier_share / budget metrics.
+    """
     decision = route(request, policy)
     start = time.monotonic()
     outcome = "ok"
     try:
-        response = call_model(decision, request) if live else {"dry_run": True}
-    except Exception as e:
+        response = call_model(decision, request)
+    except Exception as e:  # noqa: BLE001 — any failure is logged as outcome=failed
         outcome = "failed"
         response = {"error": str(e)}
     latency_ms = int((time.monotonic() - start) * 1000)
@@ -352,17 +401,24 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             length = int(self.headers.get("Content-Length", 0))
+        except ValueError:
+            self._reply(400, {"error": "invalid Content-Length"})
+            return
+        if length > MAX_BODY_BYTES:
+            self._reply(413, {"error": f"request body exceeds {MAX_BODY_BYTES} bytes"})
+            return
+        try:
             request = json.loads(self.rfile.read(length) or b"{}")
         except json.JSONDecodeError:
             self._reply(400, {"error": "invalid JSON"})
             return
         if self.path == "/route":
-            decision, _ = handle(request, self.policy, live=False)
+            decision = route(request, self.policy)  # route-only: no telemetry
             if request.get("signals"):
                 decision["escalation_triggers"] = check_escalation(request["signals"], self.policy)
             self._reply(200, decision)
         elif self.path == "/complete":
-            decision, response = handle(request, self.policy, live=True)
+            decision, response = complete(request, self.policy)
             self._reply(200, {"decision": decision, "response": response,
                               "text": extract_text(response) if "error" not in response else None})
         else:
@@ -375,21 +431,30 @@ class Handler(BaseHTTPRequestHandler):
 def main(argv):
     policy = load_policy()
     if len(argv) >= 2 and argv[1] == "serve":
-        port = int(argv[argv.index("--port") + 1]) if "--port" in argv else 8484
+        port = 8484
+        if "--port" in argv:
+            idx = argv.index("--port")
+            if idx + 1 >= len(argv):
+                print("error: --port requires a value")
+                return 1
+            port = int(argv[idx + 1])
         Handler.policy = policy
         server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
         print(f"eli-os gateway on http://127.0.0.1:{port}  (policy v{policy.get('version')})")
         server.serve_forever()
-    elif len(argv) >= 3 and argv[1] in ("route", "complete"):
+    elif len(argv) >= 3 and argv[1] == "route":
+        # Routing decision only — no model call, no telemetry.
         request = json.loads(argv[2])
-        if argv[1] == "route":
-            request["dry_run"] = True
-        decision, response = handle(request, policy, live=(argv[1] == "complete"))
-        out = {"decision": decision}
-        if argv[1] == "complete":
-            out["response"] = response
-            out["text"] = extract_text(response) if "error" not in response else None
-        print(json.dumps(out, indent=2))
+        decision = route(request, policy)
+        if request.get("signals"):
+            decision["escalation_triggers"] = check_escalation(request["signals"], policy)
+        print(json.dumps({"decision": decision}, indent=2))
+    elif len(argv) >= 3 and argv[1] == "complete":
+        request = json.loads(argv[2])
+        decision, response = complete(request, policy)
+        print(json.dumps({"decision": decision, "response": response,
+                          "text": extract_text(response) if "error" not in response else None},
+                         indent=2))
     else:
         print(__doc__)
         return 1
