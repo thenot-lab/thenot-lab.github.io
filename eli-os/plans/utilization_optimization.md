@@ -7,9 +7,9 @@ projects. It rests on three real levers and rejects the fake one.
 
 | Lever | What it actually does | Where enforced |
 |-------|----------------------|----------------|
-| **Tier-fit routing** | Runs each task on the cheapest tier that clears its bar; reserves the top tier for the ~10% that need it. | `routing/model_tree.json`, `routing_policy.md` |
-| **Prompt caching** | Discounts the repeated stable prefix (global + project + patterns + workflow) within the cache window. | `brain-stack/cache/cache_key_schema.md`, `prompts/prompt_reasoner.md` |
-| **Batch API** | Discounts async, non-interactive bulk jobs. | `model_tree.json#budget_guards`, `brain-stack/batch/` |
+| **Tier-fit routing** | Runs each task on the cheapest tier that clears its bar; reserves the top tier for the ~10% that need it. | `routing/model_tree.json`, `routing/routing_policy.md` |
+| **Prompt caching** | Discounts the repeated stable prefix (global + project + patterns + workflow) within the cache window. | `brain-stack/cache/cache_key_schema.md`, `brain-stack/prompts/prompt_reasoner.md` |
+| **Batch API** | Discounts async, non-interactive bulk jobs. | `routing/model_tree.json#budget_guards`, `brain-stack/batch/` |
 | ~~Re-tiered billing~~ | **Not a thing.** You're billed for the model that runs, at its rate. No amount of scaffolding changes that. | rejected in every spec |
 
 The durable asset is the **artifacts** — routing policy, workflows, playbooks,
@@ -25,7 +25,7 @@ billing tier (always follows the model that runs).
   escalation pull work up only on real stall signals. Cheaper *and* usually
   faster.
 - **Reserve the top tier.** Target ≤10% of requests; alert at 15%
-  (`telemetry_spec.md`). If the share creeps up, the fix is a routing/prompt
+  (`observability/telemetry_spec.md`). If the share creeps up, the fix is a routing/prompt
   change (a PR), not a bigger budget.
 - **Right-size Opus.** Deep work only. A task that's really "format this doc"
   routed to Opus is pure waste — the classifier's job is to catch that.
@@ -42,7 +42,7 @@ billing tier (always follows the model that runs).
 ### 3. Batch coverage
 - **Everything non-interactive that's bulk goes to batch.** Guardian repo
   scans, CompanionBot nightly analytics, any job >20 requests
-  (`model_tree.json#budget_guards`).
+  (`routing/model_tree.json#budget_guards`).
 - Batch + cache compose: batched jobs still reuse the cached prefix.
 
 ## Per-project cost profile
@@ -65,7 +65,7 @@ billing tier (always follows the model that runs).
 
 ## Quarterly review
 
-Driven by the feedback loop (`telemetry_spec.md`):
+Driven by the feedback loop (`observability/telemetry_spec.md`):
 1. Top-tier share within target? If not, which routes misfired → PR.
 2. Cache-hit rate ≥70%? If not, which prefixes are unstable → PR.
 3. Batch coverage complete? Any bulk job still running interactively → PR.

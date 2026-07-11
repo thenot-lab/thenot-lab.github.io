@@ -14,7 +14,7 @@ reasoning substrate already built in [`../brain-stack/`](../brain-stack/):
 │               Guardian) · internal Dominion workspace        │
 ├──────────────────────────────────────────────────────────────┤
 │  GATEWAY &    request classifier → model router → escalation │
-│  ROUTER       routing/model_tree.json · routing_policy.md    │
+│  ROUTER       routing/{model_tree.json · routing_policy.md}  │
 ├──────────────────────────────────────────────────────────────┤
 │  ORCHESTRA-   task-graph engine (DAG): plan → execute →      │
 │  TION         aggregate → review   orchestration/            │

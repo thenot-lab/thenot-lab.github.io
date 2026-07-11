@@ -72,7 +72,7 @@ All gate outcomes land in `guardrail_flags` — the log is the audit trail.
 - **Act:** it proposes concrete changes — a routing rule, a prompt pattern, an
   escalation threshold — as a **PR against this directory**. Routing policy
   evolves through reviewed diffs, not silent drift. Every change is versioned;
-  `model_tree.json` and `routing_policy.md` move together.
+  `routing/model_tree.json` and `routing/routing_policy.md` move together.
 
 ## What is deliberately NOT claimed
 

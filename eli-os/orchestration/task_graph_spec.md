@@ -74,7 +74,7 @@ visible and auditable.
 - Independent nodes run in parallel up to a small cap (home-scale: a handful,
   not hundreds).
 - Non-interactive multi-node jobs over the batch threshold
-  (`model_tree.json#budget_guards`) run through the Batch API.
+  (`routing/model_tree.json#budget_guards`) run through the Batch API.
 - Every node reuses its cacheable prefix; the aggregate cost is tracked per
   node and rolled up in telemetry.
 

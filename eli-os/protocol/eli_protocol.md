@@ -122,8 +122,8 @@ The gateway treats its own inputs as a threat surface:
 
 | Consumes | From |
 |----------|------|
-| Security audit skeleton, decomposition tree, evidence + failure rules | `../brain-stack/` |
-| `net_sec_hardening` I/O schema | `../brain-stack/workflows/` |
-| Model tiers + escalation triggers | `../eli-os/routing/` |
-| Playbooks, past findings, baselines (long-term memory) | `../eli-os/memory/` |
-| Action logging, guardrail gate | `../eli-os/observability/` |
+| Security audit skeleton, decomposition tree, evidence + failure rules | `brain-stack/` |
+| `net_sec_hardening` I/O schema | `brain-stack/workflows/` |
+| Model tiers + escalation triggers | `routing/` |
+| Playbooks, past findings, baselines (long-term memory) | `memory/` |
+| Action logging, guardrail gate | `observability/` |

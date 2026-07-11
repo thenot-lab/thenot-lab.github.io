@@ -15,11 +15,12 @@ single admin, one box, zero/low dependency.
 ## Phase 1 — Gateway skeleton + routing
 
 - **Deliverable:** a stateless gateway service (FastAPI or similar) that
-  accepts a request, runs the classifier, applies `model_tree.json`, calls the
-  chosen model endpoint, and returns the result. Load routing from the JSON so
-  policy changes are config, not code.
+  accepts a request, runs the classifier, applies `routing/model_tree.json`,
+  calls the chosen model endpoint, and returns the result. Load routing from
+  the JSON so policy changes are config, not code.
 - **Acceptance:** a request with each task type routes to the tier the policy
-  predicts; every call writes a telemetry record (`telemetry_spec.md` schema).
+  predicts; every call writes a telemetry record
+  (`observability/telemetry_spec.md` schema).
 
 ## Phase 2 — Memory + caching
 
@@ -31,7 +32,7 @@ single admin, one box, zero/low dependency.
 
 ## Phase 3 — Orchestration (task graph)
 
-- **Deliverable:** the DAG engine (`task_graph_spec.md`): plan → execute →
+- **Deliverable:** the DAG engine (`orchestration/task_graph_spec.md`): plan → execute →
   aggregate → review, with concurrency, retries, and node escalation.
 - **Acceptance:** the Guardian worked example runs end to end; the top-tier
   node (n4) is *skipped* when its escalation condition isn't met, and *runs*
