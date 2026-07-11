@@ -1,0 +1,34 @@
+{
+  "$schema_note": "Template for a batched, non-interactive run of the net_sec_hardening workflow. One entry in 'requests' = one independent workflow execution. Intended for the provider's Batch API (discounted, asynchronous).",
+  "job_type": "net_sec_hardening",
+  "workflow_id": "net_sec_hardening",
+  "version": "1.0",
+  "project": "dominion",
+  "idempotent": true,
+  "model": "REPLACE_WITH_MODEL_ID",
+  "notes": [
+    "Batch = throughput discount for work that doesn't need to be interactive.",
+    "It does NOT change which model runs or how tokens are tiered — same model, same rates, just discounted and async.",
+    "Each request reuses the cacheable prefix from prompt_reasoner.md; only the input suffix differs."
+  ],
+  "input_schema_ref": "workflows/workflow_net_sec_hardening.md#input-schema",
+  "output_schema_ref": "workflows/workflow_net_sec_hardening.md#output-schema",
+  "requests": [
+    {
+      "custom_id": "example-home-lan-01",
+      "role": "reasoner",
+      "mode": "plan",
+      "input": {
+        "goal": "Harden a home LAN with an IoT segment and one internet-facing service.",
+        "assets": [
+          { "name": "edge-router", "type": "router", "exposure": "internet-facing" },
+          { "name": "nas", "type": "server", "exposure": "internal" },
+          { "name": "smart-cams", "type": "iot", "exposure": "internal" }
+        ],
+        "topology": "Single /24, flat. Router does NAT. NAS reachable from all devices. Cameras phone home.",
+        "constraints": ["no paid tooling", "single admin", "must stay online during changes"],
+        "current_state": "Default router creds changed; no VLANs; no logging enabled."
+      }
+    }
+  ]
+}
