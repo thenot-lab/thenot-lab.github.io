@@ -45,6 +45,7 @@ a product behavior (Eli Guardian, consulting) and how Eli OS protects itself.
 | `memory/context_memory_spec.md` | Short-term, long-term, and policy stores; escalation context handoff |
 | `orchestration/task_graph_spec.md` | DAG engine: node schema, tier assignment, restructure + review rules |
 | `observability/telemetry_spec.md` | Log record schema, guardrails, feedback loop |
+| `gateway/gateway.py` | **Phase 1 implementation**: classifier + router + model call + telemetry (stdlib-only) |
 | `plans/utilization_optimization.md` | Unified cost/utilization plan across all projects |
 | `plans/roadmap.md` | Phased build plan with acceptance criteria |
 

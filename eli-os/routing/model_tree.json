@@ -27,7 +27,7 @@
     }
   },
   "classifier_features": [
-    "task_type", "input_length", "user_role", "risk_flags", "interactivity",
+    "task_type", "input_length", "user_role", "risk_flags", "interactive",
     "requires_files", "requires_tools", "prior_failures_on_task", "project"
   ],
   "rules": [
