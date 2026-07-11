@@ -12,7 +12,7 @@ single admin, one box, zero/low dependency.
   orchestration, observability) has a spec with schemas; JSON validates;
   cross-references resolve.
 
-## Phase 1 — Gateway skeleton + routing
+## Phase 1 — Gateway skeleton + routing ✅ (`gateway/`)
 
 - **Deliverable:** a stateless gateway service (FastAPI or similar) that
   accepts a request, runs the classifier, applies `routing/model_tree.json`,
