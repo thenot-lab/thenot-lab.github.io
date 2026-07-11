@@ -5,28 +5,31 @@ inputs → same key → same cached prefix reused.
 
 ## Key formula
 
-```
+```text
 cache_key = [
   "project:"  + PROJECT_ID,
   "workflow:" + WORKFLOW_ID,
   "version:"  + WORKFLOW_VERSION,
-  "role:"     + AGENT_ROLE,
-  "mode:"     + MODE
+  "role:"     + AGENT_ROLE
 ].join("|")
 ```
 
 ## Examples
 
-```
-project:dominion|workflow:net_sec_hardening|version:1.0|role:reasoner|mode:plan
-project:dominion|workflow:ui_surface_design|version:2.0|role:architect|mode:analysis
+```text
+project:dominion|workflow:net_sec_hardening|version:1.0|role:reasoner
+project:dominion|workflow:ui_surface_design|version:2.0|role:architect
 ```
 
 ## Rules
 
 - The key covers **only the stable prefix** (global + project + patterns +
-  workflow spec). It must **not** include the goal, constraints, or context —
-  those are the variable suffix and change every call.
+  workflow spec, plus the SYSTEM block with the role bound). It must **not**
+  include the goal, mode, constraints, or context — those are the variable
+  suffix and change every call. (`AGENT_ROLE` stays in the key because the
+  SYSTEM block binds it into the prefix — one prefix per workflow + role
+  pairing. `MODE` lives in the USER suffix; keying on it would split identical
+  prefixes and cut cache reuse.)
 - Bump `WORKFLOW_VERSION` whenever the workflow spec or any pattern it pulls
   changes. A stale prefix served under an old key is a correctness bug, not a
   cost saving.

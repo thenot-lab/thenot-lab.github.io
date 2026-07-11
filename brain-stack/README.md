@@ -52,7 +52,7 @@ premise. The value is real; the shortcut it was wrapped in is not.
 
 ## Layout
 
-```
+```text
 brain-stack/
   CLAUDE.global.md            Global reasoning substrate (identity, core rules, style, safety)
   failure_modes.md            Known reasoning errors + mitigations

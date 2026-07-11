@@ -8,7 +8,7 @@ how everything is observed, and how cost is kept flat.
 Eli OS v2 = five layers, each specified in its own file, all sitting on the
 reasoning substrate already built in [`../brain-stack/`](../brain-stack/):
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────┐
 │  CLIENTS      site · Telegram (CompanionBot) · CLI (Eli      │
 │               Guardian) · internal Dominion workspace        │

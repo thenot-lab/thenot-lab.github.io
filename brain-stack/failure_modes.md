@@ -14,6 +14,7 @@ applied before output is emitted.
 | `false-premise-accept` | Building on a user premise that is factually wrong (e.g. "this reduces billing tier"). | Does the plan depend on a mechanism that must be true for the goal to hold? Is it actually true? | Name the false premise, explain why it fails, and deliver the version that achieves the real underlying goal. |
 | `prevention-only` | A security answer that only prevents, ignoring detection/response/recovery. | Classify each measure into prevent / detect / respond / recover. | Ensure all four phases are represented, or state explicitly why one is out of scope. |
 | `schema-drift` | Output that doesn't match the workflow's declared output schema. | Diff output shape against the schema. | Reformat to the schema, or note the deviation and why. |
+| `state-gap` | A state model that omits a lifecycle state (loading, empty, error, success) or leaves a listed state unhandled — the output can be schema-valid and still incomplete. | Compare the emitted states against the required lifecycle set and the edge-surface handling list. | Enumerate the missing states and their handling, or scope them out explicitly with a reason. |
 
 ## Usage
 

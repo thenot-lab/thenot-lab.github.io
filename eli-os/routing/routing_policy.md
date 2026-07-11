@@ -5,7 +5,7 @@ routing, and the entry prompt pattern for each tier.
 
 ## The decision tree
 
-```
+```text
 Does the task need more than a quick answer?
 ├─ NO ─ Need max speed / minimal tokens?
 │       ├─ YES → HAIKU 4.5   (chat, no files; web search on)
@@ -42,7 +42,11 @@ Stable patterns — keep them verbatim so prefixes cache (see
 **Top tier — decision engine (the five-part frame):**
 1. **The reason** — "I'm working on [X] for [who]. They need [what the output enables]."
 2. **The goal** — "Goal: [outcome]. Here's everything I know: [context]." (outcome, not steps)
-3. **The interview** — "Before you start, ask me everything you need to get this right."
+3. **The interview** *(interactive requests only)* — "Before you start, ask me
+   everything you need to get this right." Non-interactive runs — batch jobs
+   and automated escalations (e.g. Guardian contested findings) — must never
+   stall waiting on a user: skip the interview, proceed on explicit **labeled
+   assumptions**, and return missing inputs as `open_questions` in the output.
 4. **The boundary** — "Do the simplest thing that works. Only pause for me on irreversible actions."
 5. **The proof** — "Only report work you can point to evidence for. Lead with the outcome."
 
@@ -57,6 +61,7 @@ skeleton in prompt form — the two are kept in sync deliberately.
 ## Per-project routing
 
 ### CompanionBot (Telegram)
+
 | Task | Tier | Notes |
 |------|------|-------|
 | Persona small talk, quick Q&A | Haiku | web search on for factual |
@@ -66,6 +71,7 @@ skeleton in prompt form — the two are kept in sync deliberately.
 | Nightly analytics over conversations | Sonnet **batch** | never interactive |
 
 ### Eli Guardian (scanner)
+
 | Task | Tier | Notes |
 |------|------|-------|
 | Finding triage + dedup | Haiku | cheap, high volume |
@@ -75,6 +81,7 @@ skeleton in prompt form — the two are kept in sync deliberately.
 | Bulk repo scans | Sonnet **batch** | budget guard requires batch |
 
 ### Security Consulting
+
 | Task | Tier | Notes |
 |------|------|-------|
 | Report drafting, formatting, client comms | Sonnet | |
@@ -82,6 +89,7 @@ skeleton in prompt form — the two are kept in sync deliberately.
 | Architecture reviews, engagement scoping | Top | policy store forces top-tier review |
 
 ### Site / Dev tools
+
 | Task | Tier | Notes |
 |------|------|-------|
 | Copy edits, small fixes | Sonnet | |
@@ -90,7 +98,7 @@ skeleton in prompt form — the two are kept in sync deliberately.
 
 ## Escalation ladder
 
-```
+```text
 haiku ──(needs structure)──▶ sonnet ──(needs depth)──▶ opus ──(stalls)──▶ top
                                                         │
    triggers: confidence < 0.6 · ≥3 iterations no convergence ·
@@ -100,5 +108,7 @@ haiku ──(needs structure)──▶ sonnet ──(needs depth)──▶ opus 
    top tier: override / refine / restructure graph → work returns down-tier
 ```
 
-Never skip the interview step when escalating: the top-tier run receives the
-*trace*, not a summary — summaries hide exactly the contradictions it needs.
+When escalating, always hand up the *trace*, not a summary — summaries hide
+exactly the contradictions the top tier needs. For interactive requests the
+top tier may then interview the user; automated escalations proceed on labeled
+assumptions per the interview rule above.

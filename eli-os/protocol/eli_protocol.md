@@ -87,7 +87,16 @@ harden:
     phase: detect
 recovery_verification:
   - "confirm no active sessions predate the rotation; confirm MFA enrolled"
+coverage:   # the four-phase contract, satisfied explicitly
+  prevent: ["harden: unique creds + MFA"]
+  detect:  ["detect: auth-log rule", "harden: standing auth-log monitor"]
+  respond: ["isolate: revoke sessions + block source", "remediate: rotate, audit, expand scope"]
+  recover: ["recovery_verification: session + MFA checks"]
 ```
+
+Every playbook ends with a `coverage` block mapping its measures onto
+prevent/detect/respond/recover. A phase with an empty list must carry a
+written reason — that is what the Phase 4 roadmap acceptance check verifies.
 
 ## Eli Guardian pipeline (protocol as product)
 

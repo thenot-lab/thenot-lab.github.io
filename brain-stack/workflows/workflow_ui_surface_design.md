@@ -41,7 +41,8 @@
 1. **User + job** (goal: ground the design; method: tree node 1; verify: the
    job is a concrete task, not "use the app").
 2. **State model** (goal: enumerate all states; method: tree node 2; verify:
-   loading, empty, error, and success all present — else `schema-drift`).
+   loading, empty, error, and success all present — else `state-gap`; output
+   shape matches the schema — else `schema-drift`).
 3. **Information architecture** (goal: hierarchy of what's shown; verify:
    primary action is unambiguous).
 4. **Interaction flow** (goal: primary + secondary paths + escape hatches;
@@ -49,8 +50,9 @@
 5. **Edge & failure surfaces** (goal: empty/error/latency/denied/narrow;
    verify: no state from step 2 is left without handling).
 6. **Options at load-bearing joints** (goal: ≥2 options where a choice matters;
-   method: fill `architecture_tradeoff_table`; verify: recommendation cites the
-   table — else `single-option`).
+   method: fill `architecture_tradeoff_table`; verify: ≥2 genuinely distinct
+   options presented — else `single-option`; the recommendation cites specific
+   table cells — else `evidence-gap`).
 
 ## Error handling
 

@@ -15,7 +15,8 @@ tiers execute nodes.
   "workflow": "optional brain-stack workflow id (e.g. net_sec_hardening)",
   "input": { "goal": "…", "mode": "plan|analysis", "constraints": ["…"], "context_ref": "memory pointer" },
   "output_schema_ref": "workflow output schema, or inline schema",
-  "status": "pending | running | done | failed | escalated",
+  "condition": "optional guard, evaluated when dependencies resolve; unmet → skipped",
+  "status": "pending | running | done | skipped | failed | escalated",
   "result": { "output": "…", "confidence": 0.0, "tokens": { "in": 0, "out": 0, "cached": 0 } },
   "retries": 0
 }
@@ -23,7 +24,7 @@ tiers execute nodes.
 
 ## Lifecycle
 
-```
+```text
 PLAN ──▶ EXECUTE ──▶ AGGREGATE ──▶ REVIEW ──▶ RETURN
  │                                    │
  │  (top tier designs the DAG)        │  (optional top-tier coherence + risk pass)
@@ -33,8 +34,11 @@ PLAN ──▶ EXECUTE ──▶ AGGREGATE ──▶ REVIEW ──▶ RETURN
 1. **Plan.** For a complex/high-impact task the top tier builds the DAG:
    picks the approach (2–3 options → one), decomposes it into nodes, assigns a
    tier per node using `routing/model_tree.json`, sets dependencies.
-2. **Execute.** Nodes run when their `depends_on` are `done`. Independent nodes
-   run concurrently. Each node is a model call through the gateway (so routing,
+2. **Execute.** Nodes run when every `depends_on` is `done` or `skipped` —
+   `skipped` is a terminal state that *satisfies* downstream dependencies. A
+   node with a `condition` evaluates it at that moment: unmet → `skipped`, and
+   downstream nodes treat its output as absent. Independent nodes run
+   concurrently. Each node is a model call through the gateway (so routing,
    caching, telemetry, guardrails all apply).
 3. **Aggregate.** Collect node outputs into the task's short-term context.
 4. **Review.** Optional top-tier pass for coherence + risk across the aggregate
@@ -65,7 +69,7 @@ visible and auditable.
 
 | Situation | Handling |
 |-----------|----------|
-| Node fails (tool error, timeout) | Retry up to `max_retries` (default 2, exponential backoff); then mark `failed` and surface to the planner. |
+| Node fails (tool error, timeout) | Auto-retry (up to `max_retries`, default 2, exponential backoff) **only if the node is idempotent** — pure model calls and reads. A node that fired an external action retries only if the action tool supports an idempotency key + dedup; a node with an `irreversible` action is **never** auto-retried (it may have partially succeeded before the timeout — surface to the planner and the guardrail gate instead). Exhausted retries → `failed`, surfaced to the planner. |
 | Opus node stalls | Escalate that node to the top tier with full trace (`routing/model_tree.json#escalation`); status → `escalated`. |
 | Downstream depends on a failed node | Planner decides: substitute, re-plan, or return partial with the gap named explicitly (never silently drop). |
 
@@ -80,12 +84,13 @@ visible and auditable.
 
 ## Worked example — Guardian scan of a repo
 
-```
+```text
 n1 [haiku]  triage+dedup raw findings
 n2 [sonnet] STRIDE classify           depends: n1
 n3 [opus]   semantic analysis of top-risk paths   depends: n2   workflow: (guardian analysis)
 n4 [top]    verdict on contested findings          depends: n3   (only if n3 confidence < 0.6 or conflicts)
 n5 [sonnet] assemble report in net_sec_hardening output schema   depends: n2,n3,n4
 ```
-n4 exists in the graph but only *runs* on its escalation condition — otherwise
-it's skipped and n5 proceeds. That is the ~10% top-tier reservation in practice.
+n4 carries a `condition` (the escalation trigger): when it's unmet, n4 becomes
+`skipped`, which satisfies n5's dependency, and n5 assembles the report without
+a top-tier verdict. That is the ~10% top-tier reservation in practice.

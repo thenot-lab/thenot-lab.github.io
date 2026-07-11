@@ -50,9 +50,12 @@
 5. **Remediation playbooks** (goal: ordered recovery per incident class;
    method: home-executable steps; verify: each step runnable with owned tools —
    else `non-home-executable`).
-6. **Hardening baseline** (goal: preventive changes; method: map each to the
-   threat it closes; verify: all four phases prevent/detect/respond/recover are
-   represented — else `prevention-only`).
+6. **Hardening baseline** (goal: a standing control baseline spanning all four
+   phases — preventive changes plus the detection, response, and recovery
+   controls that stay in place; method: map each control to the threat it
+   closes and tag its phase; verify: all four phases
+   prevent/detect/respond/recover are represented or explicitly scoped out —
+   else `prevention-only`).
 
 ## Error handling
 

@@ -67,7 +67,7 @@ single admin, one box, zero/low dependency.
 
 ## Dependency order
 
-```
+```text
 Phase 0 ─▶ 1 ─▶ 2 ─▶ 3 ─▶ 4
                └────────▶ 5 ─▶ 6
 ```

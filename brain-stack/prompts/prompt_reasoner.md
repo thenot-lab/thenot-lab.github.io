@@ -7,7 +7,7 @@ the structure and the leading content stable is what makes the prefix
 Assemble in this order so everything stable comes first and the variable
 payload comes last:
 
-```
+```text
 ┌─ STABLE PREFIX (cacheable) ───────────────────────────────┐
 │ 1. CLAUDE.global.md          (verbatim)                   │
 │ 2. projects/CLAUDE.project.[PROJECT_ID].md   (verbatim)   │
@@ -21,7 +21,7 @@ payload comes last:
 
 ## SYSTEM block
 
-```
+```text
 You are the [AGENT_ROLE] for project [PROJECT_ID].
 Follow workflow [WORKFLOW_ID] v[WORKFLOW_VERSION].
 Apply skeleton [SKELETON_NAME] and decomposition [DECOMP_NAME].
@@ -29,9 +29,13 @@ Obey the evidence rules and check the failure modes before emitting output.
 Emit output strictly in the workflow's output schema.
 ```
 
+The SYSTEM block sits at the top of the **stable prefix**: its slots bind once
+per (project, workflow, role) pairing, not per call. Only the USER block below
+varies per call.
+
 ## USER block
 
-```
+```text
 Goal: [GOAL]
 Mode: [MODE]                      # plan | analysis
 Constraints:

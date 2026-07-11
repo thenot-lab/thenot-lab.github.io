@@ -19,7 +19,7 @@ One record per model call (node), appended to a JSONL log.
   "model": "resolved model id",
   "route_reason": "which rule/override/escalation selected the tier",
   "escalated": false,
-  "escalation_trigger": "null | confidence | iterations | conflict | constraint_conflict | policy",
+  "escalation_trigger": "null | self_reported_confidence | iterations_without_convergence | conflicting_outputs_across_runs | constraint_conflict_detected | policy",
   "tools_used": ["web_search", "drive", "data_fetcher:access_logs", "..."],
   "tokens": { "in": 0, "out": 0, "cached": 0 },
   "cache_hit": true,
@@ -31,6 +31,35 @@ One record per model call (node), appended to a JSONL log.
   "outcome": "ok | retried | failed"
 }
 ```
+
+`escalation_trigger` values are the **canonical signal names from
+`routing/model_tree.json#escalation`** — telemetry producers and dashboards
+must use them verbatim (plus `null` for "not escalated" and `policy` for
+policy-store-forced routing) so the two files never disagree.
+
+## Gate & action event schema
+
+Model calls aren't the only auditable moments: RBAC denials, confirmation
+pauses, and action-tool executions can all happen outside any model call. They
+get their own record type in the same JSONL stream:
+
+```json
+{
+  "ts": "iso8601",
+  "record": "gate",
+  "request_id": "string",
+  "session_id": "string",
+  "principal": "user/service identity from the profile store",
+  "kind": "rbac_denial | content_filter | injection_flag | confirmation_pause | confirmation_result | action_execution",
+  "action": "tool + operation (e.g. deploy_hook:trigger, drive:delete)",
+  "reversibility": "reversible | irreversible | n/a",
+  "decision": "allowed | denied | paused | confirmed | aborted",
+  "result": "ok | failed | n/a"
+}
+```
+
+Every gate outcome and every action-tool execution writes one — including
+denials and pauses where no model was ever called.
 
 ## Dashboards / signals to watch
 
@@ -60,7 +89,10 @@ Every request passes these before and after the model call:
 5. **High-impact review** — policy-flagged outputs get a top-tier review pass
    before reaching the user.
 
-All gate outcomes land in `guardrail_flags` — the log is the audit trail.
+Gate outcomes tied to a model call also land in that call's `guardrail_flags`;
+outcomes outside a model call (denied requests, standalone action executions)
+are captured as `gate` records. The two record types together are the audit
+trail — neither alone is complete.
 
 ## Feedback loop
 

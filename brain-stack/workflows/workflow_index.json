@@ -8,7 +8,7 @@
       "skeleton": "Security audit",
       "decomposition": "home_network_security_hardening",
       "tradeoff_pattern": "security_control_table",
-      "evidence_rules": true,
+      "evidence_rules": "patterns/evidence_rules.md",
       "failure_modes": ["non-home-executable", "monitoring-handwave", "prevention-only", "constraint-overfit"]
     },
     "ui_surface_design": {
@@ -17,8 +17,8 @@
       "skeleton": "Design",
       "decomposition": "ui_surface",
       "tradeoff_pattern": "architecture_tradeoff_table",
-      "evidence_rules": true,
-      "failure_modes": ["single-option", "evidence-gap", "schema-drift"]
+      "evidence_rules": "patterns/evidence_rules.md",
+      "failure_modes": ["single-option", "evidence-gap", "schema-drift", "state-gap"]
     }
   }
 }
