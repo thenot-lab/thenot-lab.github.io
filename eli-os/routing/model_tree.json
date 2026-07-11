@@ -1,0 +1,94 @@
+{
+  "$schema_note": "Machine-readable routing policy for the Eli OS gateway. Human rationale lives in routing_policy.md. Rules evaluate top-down; first match wins. Model IDs are the current public identifiers — update here (one place) when the lineup changes.",
+  "version": "2.0",
+  "tiers": {
+    "haiku": {
+      "model": "claude-haiku-4-5",
+      "role": "lightweight token-saver",
+      "use_for": "quick answers, chat without files, triage, micro-interactions",
+      "web_search": "on by default for factual chat"
+    },
+    "sonnet": {
+      "model": "claude-sonnet-5",
+      "role": "everyday model",
+      "use_for": "simple structured tasks, doc/file/message operations, connector work, summaries"
+    },
+    "opus": {
+      "model": "claude-opus-4-8",
+      "role": "deep work model",
+      "use_for": "multi-step plans, cowork sessions, code, artifact building",
+      "effort": "high"
+    },
+    "top": {
+      "model": "claude-fable-5",
+      "role": "hardest reasoning; reached mostly via escalation",
+      "use_for": "multi-constraint decisions, architecture, strategy, contested findings, end-to-end multi-workflow runs",
+      "budget_note": "target <=10% of requests; costs more tokens"
+    }
+  },
+  "classifier_features": [
+    "task_type", "input_length", "user_role", "risk_flags", "interactivity",
+    "requires_files", "requires_tools", "prior_failures_on_task", "project"
+  ],
+  "rules": [
+    { "match": { "risk_flags": ["high_impact_decision", "security_critical_output"] }, "route": "top", "note": "policy store can force top-tier review regardless of size" },
+    { "match": { "task_type": ["architecture_decision", "strategy", "multi_system_tradeoff", "complex_debugging"] }, "route": "top" },
+    { "match": { "task_type": ["multi_step_plan", "cowork_session", "code_build", "deep_research", "workflow_execution"] }, "route": "opus" },
+    { "match": { "task_type": ["doc_operation", "summarize", "format", "connector_action", "structured_edit"] }, "route": "sonnet" },
+    { "match": { "task_type": ["chat", "clarification", "triage", "dedup", "quick_answer"], "requires_files": false }, "route": "haiku" },
+    { "match": {}, "route": "sonnet", "note": "default when nothing matches" }
+  ],
+  "project_overrides": {
+    "companionbot": {
+      "persona_chat": "haiku",
+      "in_chat_structured_task": "sonnet",
+      "in_chat_deep_task": "opus",
+      "analytics_batch": { "tier": "sonnet", "batch": true },
+      "top_tier_access": "escalation_only"
+    },
+    "eli_guardian": {
+      "finding_triage_dedup": "haiku",
+      "finding_classification_stride": "sonnet",
+      "semantic_code_analysis": "opus",
+      "exploit_chain_reasoning": "opus",
+      "contested_finding_verdict": "top",
+      "cross_system_risk_verdict": "top",
+      "bulk_repo_scan": { "tier": "sonnet", "batch": true }
+    },
+    "consulting": {
+      "report_drafting": "sonnet",
+      "threat_model": { "tier": "opus", "workflow": "net_sec_hardening" },
+      "remediation_plan": { "tier": "opus", "workflow": "net_sec_hardening" },
+      "architecture_review": "top",
+      "engagement_scoping": "top"
+    },
+    "site_devtools": {
+      "copy_edit": "sonnet",
+      "ui_design": { "tier": "opus", "workflow": "ui_surface_design" },
+      "build_debug": "opus"
+    }
+  },
+  "escalation": {
+    "from_opus_to_top": {
+      "triggers": [
+        { "signal": "self_reported_confidence", "threshold": "< 0.6", "action": "escalate" },
+        { "signal": "iterations_without_convergence", "threshold": ">= 3", "action": "escalate" },
+        { "signal": "conflicting_outputs_across_runs", "threshold": ">= 2 disagreeing runs", "action": "escalate" },
+        { "signal": "constraint_conflict_detected", "threshold": "any hard-constraint conflict", "action": "escalate" }
+      ],
+      "handoff": "full trace + short-term context + relevant long-term memory (see memory/context_memory_spec.md)",
+      "top_tier_may": ["override", "refine", "restructure_task_graph", "push_back_recommended_approach"],
+      "record": "escalation tagged in telemetry with trigger + verdict"
+    },
+    "de_escalation": {
+      "note": "after top tier fixes the plan, remaining subtasks return to opus/sonnet/haiku per the task graph"
+    }
+  },
+  "budget_guards": {
+    "top_tier_request_share_target": 0.10,
+    "alert_when_share_exceeds": 0.15,
+    "per_project_daily_token_ceiling": "set in profile/policy store",
+    "batch_required_for": ["bulk_repo_scan", "analytics_batch", "any non-interactive job > 20 requests"],
+    "cache_required_for": "all brain-stack workflow runs (stable prefix per cache_key_schema)"
+  }
+}
