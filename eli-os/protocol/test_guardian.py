@@ -15,7 +15,7 @@ import guardian
 
 VULN = textwrap.dedent('''
     import subprocess, pickle, hashlib
-    API_KEY = "sk-supersecret-value-1234"          # hardcoded-secret
+    API_KEY = "EXAMPLE-not-a-real-secret"          # hardcoded-secret
     def run(cmd, blob, user_id):
         subprocess.run(cmd, shell=True)             # shell-true
         data = pickle.loads(blob)                   # pickle-loads

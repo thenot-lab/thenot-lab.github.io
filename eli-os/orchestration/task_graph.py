@@ -13,7 +13,7 @@ nodes retry only with an idempotency key; irreversible nodes never auto-retry
 """
 
 import time
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 PENDING, RUNNING, DONE, SKIPPED, FAILED, BLOCKED = (
     "pending", "running", "done", "skipped", "failed", "blocked")
@@ -73,7 +73,9 @@ class TaskGraph:
                 if not to_run:
                     continue  # everything ready was skipped; re-scan for newly-ready
                 futures = {pool.submit(self._run_node, n, results): n for n in to_run}
-                for fut in futures:
+                # Record completions in actual completion order (no head-of-line
+                # blocking on a slow node); the transition log reflects reality.
+                for fut in as_completed(futures):
                     n = futures[fut]
                     ok, value = fut.result()
                     if ok:

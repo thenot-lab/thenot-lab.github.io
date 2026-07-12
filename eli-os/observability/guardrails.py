@@ -56,7 +56,9 @@ class Guardrails:
     # -- prompt-injection screen (self-defense) -------------------------------
     def screen_tool_output(self, request_id, content, source="tool"):
         """Scan untrusted output; return {clean, flags}. Flags are logged."""
-        flags = [p for p in INJECTION_PATTERNS if re.search(p, content or "", re.I)]
+        # re.M so line-anchored patterns (e.g. `^system:`) match after a newline —
+        # injection payloads are usually multi-line.
+        flags = [p for p in INJECTION_PATTERNS if re.search(p, content or "", re.I | re.M)]
         if flags:
             self._log(request_id, principal=source, kind="injection_flag",
                       action=f"screen:{source}", decision="flagged")

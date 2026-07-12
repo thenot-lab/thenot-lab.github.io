@@ -56,7 +56,7 @@ def main(argv):
 
     # 3. Guardian — scan a fixture through the tiered pipeline.
     fixture = Path(tempfile.mkdtemp()) / "app.py"
-    fixture.write_text('import hashlib\nAPI_KEY="sk-abcdef123456"\nh=hashlib.md5(x)\n')
+    fixture.write_text('import hashlib\nAPI_KEY="EXAMPLE-not-a-real-secret"\nh=hashlib.md5(x)\n')
     report = guardian.run_guardian(str(fixture.parent))
 
     # 4. Guardrails — injection-flagged content must not trigger an action.
