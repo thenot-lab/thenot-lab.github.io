@@ -35,15 +35,21 @@ INJECTION_PATTERNS = [
     r"run\s+the\s+following\s+(command|code)",
 ]
 
-# Which permission a tool requires, and whether it is reversible.
-TOOL_PERMISSION = {
-    "read": "read_tools", "grep": "read_tools", "data_fetcher": "data_fetchers",
-    "web_fetch": "read_tools", "send_email": "all_tools",
-    "delete_records": "all_tools", "deploy_hook": "all_tools",
-    "ticket_create": "all_tools", "rotate_credential": "all_tools",
+# Each tool -> (required permission, reversibility). One table so the two
+# properties can't drift apart as tools are added: a tool added here as
+# "irreversible" automatically hits the confirmation gate, with no second
+# structure to keep in sync.
+TOOL_CONFIG = {
+    "read":              ("read_tools",    "reversible"),
+    "grep":              ("read_tools",    "reversible"),
+    "web_fetch":         ("read_tools",    "reversible"),
+    "data_fetcher":      ("data_fetchers", "reversible"),
+    "send_email":        ("all_tools",     "irreversible"),
+    "delete_records":    ("all_tools",     "irreversible"),
+    "deploy_hook":       ("all_tools",     "irreversible"),
+    "ticket_create":     ("all_tools",     "irreversible"),
+    "rotate_credential": ("all_tools",     "irreversible"),
 }
-IRREVERSIBLE_TOOLS = {"send_email", "delete_records", "deploy_hook",
-                      "rotate_credential", "ticket_create"}
 
 
 class Guardrails:
@@ -55,13 +61,14 @@ class Guardrails:
 
     # -- prompt-injection screen (self-defense) -------------------------------
     def screen_tool_output(self, request_id, content, source="tool"):
-        """Scan untrusted output; return {clean, flags}. Flags are logged."""
+        """Scan untrusted output; return {clean, flags}. Every scan is logged —
+        flagged or clean — so the audit trail is complete, not just the hits."""
         # re.M so line-anchored patterns (e.g. `^system:`) match after a newline —
         # injection payloads are usually multi-line.
         flags = [p for p in INJECTION_PATTERNS if re.search(p, content or "", re.I | re.M)]
-        if flags:
-            self._log(request_id, principal=source, kind="injection_flag",
-                      action=f"screen:{source}", decision="flagged")
+        self._log(request_id, principal=source,
+                  kind="injection_flag" if flags else "injection_screen",
+                  action=f"screen:{source}", decision="flagged" if flags else "clean")
         return {"clean": not flags, "flags": flags}
 
     # -- content filter -------------------------------------------------------
@@ -71,6 +78,8 @@ class Guardrails:
                 self._log(request_id, principal, "content_filter",
                           action="content_screen", decision="denied")
                 return {"allowed": False, "matched": pat.pattern}
+        self._log(request_id, principal, "content_filter",
+                  action="content_screen", decision="allowed")
         return {"allowed": True, "matched": None}
 
     # -- the action gate: RBAC -> injection provenance -> irreversible --------
@@ -78,13 +87,18 @@ class Guardrails:
         """action: {tool, operation?, reversibility?, blast_radius?,
         triggered_by_flagged?, preauthorized?}. Returns a decision dict and
         writes a gate record for the outcome."""
-        tool = action["tool"]
-        reversibility = action.get("reversibility") or (
-            "irreversible" if tool in IRREVERSIBLE_TOOLS else "reversible")
+        # Eli OS treats its own inputs as a threat surface: a malformed action
+        # fails closed (denied), never crashes the gate.
+        tool = action.get("tool")
+        if not tool:
+            return self._decide(request_id, principal_name, tool, "n/a",
+                                "rbac_denial", "denied",
+                                reason="malformed action: missing 'tool'")
+        needed, default_reversibility = TOOL_CONFIG.get(tool, ("all_tools", "reversible"))
+        reversibility = action.get("reversibility") or default_reversibility
 
         # 1. RBAC — principal must hold the tool's required permission.
         principal = self.policy.user(principal_name)
-        needed = TOOL_PERMISSION.get(tool, "all_tools")
         perms = (principal or {}).get("permissions", [])
         if principal is None or (needed not in perms and "all_tools" not in perms):
             return self._decide(request_id, principal_name, tool, reversibility,

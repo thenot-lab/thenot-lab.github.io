@@ -80,13 +80,17 @@ def main(argv):
           f"stages={report['_graph_statuses']}")
     print(f"4. guardrails  : screen clean={screen['clean']}, action={action['decision']} "
           f"(blast_radius={action.get('blast_radius')})")
-    print(f"5. dashboard   : top-tier {dashboard._pct(signals['top_tier_share'])}, "
+    print(f"5. dashboard   : top-tier {dashboard.pct(signals['top_tier_share'])}, "
           f"est ${signals['est_cost_total_usd']:.4f}, gate_decisions={signals['gate_decisions']}")
     print(f"6. review      : {len(suggestions)} suggestion(s): "
           f"{[s['type'] for s in suggestions]}")
 
     if "--html" in argv:
-        out = argv[argv.index("--html") + 1]
+        idx = argv.index("--html")
+        if idx + 1 >= len(argv):
+            print("error: --html requires a path argument", file=sys.stderr)
+            return 2
+        out = argv[idx + 1]
         Path(out).write_text(dashboard.render_html(signals))
         print(f"wrote dashboard -> {out}")
     return 0

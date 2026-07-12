@@ -57,11 +57,21 @@ STRIDE_NAMES = {"S": "Spoofing", "T": "Tampering", "R": "Repudiation",
 # --------------------------------------------------------------------------- #
 # Phase 0 — scan (no LLM)
 # --------------------------------------------------------------------------- #
+# Directories that never hold reviewable project source, and would only add
+# noise (vendored deps, VCS internals, caches) if scanned.
+SKIP_DIRS = {".git", "__pycache__", "venv", ".venv", "env", "node_modules"}
+
+
 def scan(target_dir):
-    """Walk .py files, apply rules, emit raw findings with file:line evidence."""
+    """Walk .py files, apply rules, emit raw findings with file:line evidence.
+    Skips noise directories and `test_*.py` fixtures — the latter plant
+    deliberate vulnerabilities the line scanner can't tell from live code, so
+    scanning them (e.g. the no-arg default target) self-reports false hits."""
     target = Path(target_dir)
     findings = []
     for path in sorted(target.rglob("*.py")):
+        if SKIP_DIRS & set(path.relative_to(target).parts) or path.name.startswith("test_"):
+            continue
         try:
             lines = path.read_text(errors="replace").splitlines()
         except OSError:

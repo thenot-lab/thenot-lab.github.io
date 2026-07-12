@@ -49,10 +49,36 @@ class TaskGraph:
         self.nodes = {n.id: n for n in nodes}
         if len(self.nodes) != len(nodes):
             raise ValueError("duplicate node ids")
+        self._validate_dag()
         self.max_concurrency = max_concurrency
         self.backoff_base = backoff_base
         self.review_fn = review_fn
         self.log = []  # ordered (node_id, status) transitions, for tests/telemetry
+
+    def _validate_dag(self):
+        """Reject a malformed graph at construction time. A dangling
+        `depends_on` would otherwise raise KeyError deep in scheduling, and a
+        cycle would leave its nodes silently stuck PENDING (never ready, never
+        blocked) — both are far cheaper to surface here."""
+        for n in self.nodes.values():
+            for d in n.depends_on:
+                if d not in self.nodes:
+                    raise ValueError(f"node {n.id!r} depends on unknown node {d!r}")
+        visiting, done = set(), set()
+
+        def visit(nid):
+            if nid in done:
+                return
+            if nid in visiting:
+                raise ValueError(f"dependency cycle involving node {nid!r}")
+            visiting.add(nid)
+            for d in self.nodes[nid].depends_on:
+                visit(d)
+            visiting.discard(nid)
+            done.add(nid)
+
+        for nid in self.nodes:
+            visit(nid)
 
     # -- lifecycle ------------------------------------------------------------
     def execute(self):

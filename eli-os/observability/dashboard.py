@@ -80,13 +80,19 @@ def compute_signals(records):
         "est_cost_total_usd": round(sum(cost_by_day.values()), 4),
         "est_cost_by_day": {k: round(v, 4) for k, v in sorted(cost_by_day.items())},
         "est_cost_by_project": {k: round(v, 4) for k, v in cost_by_project.items()},
+        # Models with no MODEL_RATES entry contribute $0 to the cost estimate;
+        # surface them so a blank rate reads as "unpriced", not "free".
+        "unpriced_models": dict(Counter(
+            r.get("model") for r in calls
+            if r.get("model") and r.get("model") not in MODEL_RATES)),
         "route_reasons": dict(Counter(r.get("route_reason") for r in calls)),
         "gate_kinds": dict(Counter(r.get("kind") for r in gates)),
         "gate_decisions": dict(Counter(r.get("decision") for r in gates)),
     }
 
 
-def _pct(x):
+def pct(x):
+    """Format a 0-1 ratio as a percentage (public: reused by the demo/CLI)."""
     return "—" if x is None else f"{x * 100:.1f}%"
 
 
@@ -117,11 +123,11 @@ def render_html(signals):
 <p>{signals['total_calls']} model call(s). Estimated spend
    <strong>${signals['est_cost_total_usd']:.4f}</strong>.</p>
 <div class="kpis">
-  <div class="kpi"><div class="v">{_pct(signals['top_tier_share'])}</div>
+  <div class="kpi"><div class="v">{pct(signals['top_tier_share'])}</div>
     <div class="l">top-tier share {badge(signals['top_tier_alert'])}</div></div>
-  <div class="kpi"><div class="v">{_pct(signals['cache_hit_rate'])}</div>
+  <div class="kpi"><div class="v">{pct(signals['cache_hit_rate'])}</div>
     <div class="l">cache-hit rate {badge(signals['cache_alert'])}</div></div>
-  <div class="kpi"><div class="v">{_pct(signals['escalation_rate'])}</div>
+  <div class="kpi"><div class="v">{pct(signals['escalation_rate'])}</div>
     <div class="l">escalation rate</div></div>
   <div class="kpi"><div class="v">${signals['est_cost_total_usd']:.2f}</div>
     <div class="l">estimated spend</div></div>
@@ -144,7 +150,7 @@ def main(argv):
     out = argv[2] if len(argv) > 2 else "eli_dashboard.html"
     Path(out).write_text(render_html(signals))
     print(f"wrote {out}  ({signals['total_calls']} calls, "
-          f"top-tier {_pct(signals['top_tier_share'])}, "
+          f"top-tier {pct(signals['top_tier_share'])}, "
           f"est ${signals['est_cost_total_usd']:.4f})")
     return 0
 

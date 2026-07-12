@@ -109,6 +109,16 @@ class DependencyTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             TaskGraph([Node("a", stub("a")), Node("a", stub("a"))])
 
+    def test_unknown_dependency_rejected_at_construction(self):
+        with self.assertRaises(ValueError):
+            TaskGraph([Node("a", stub("a"), depends_on=["ghost"])])
+
+    def test_cycle_rejected_at_construction(self):
+        # a -> b -> a would leave both nodes silently stuck PENDING at runtime.
+        with self.assertRaises(ValueError):
+            TaskGraph([Node("a", stub("a"), depends_on=["b"]),
+                       Node("b", stub("b"), depends_on=["a"])])
+
 
 class ReviewHookTests(unittest.TestCase):
     def test_review_fn_runs_on_aggregate(self):

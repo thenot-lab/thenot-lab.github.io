@@ -9,7 +9,7 @@ eli-os/ — nothing here auto-edits policy. Stdlib only.
 
 import json
 import sys
-from collections import Counter
+from collections import Counter, defaultdict
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -67,11 +67,14 @@ def generate_suggestions(records, policy_store=None):
             "evidence": {"trigger": trig, "count": n},
         })
 
-    # 4. Project over daily budget -> batch suggestion.
-    for project, cost in signals["est_cost_by_project"].items():
+    # 4. Project over daily budget -> batch suggestion. Tally tokens per project
+    #    in one pass rather than rescanning all calls once per project.
+    tokens_by_project = defaultdict(int)
+    for r in calls:
+        tok = r.get("tokens", {})
+        tokens_by_project[r.get("project")] += tok.get("in", 0) + tok.get("out", 0)
+    for project, proj_tokens in tokens_by_project.items():
         ceiling = policy.daily_ceiling(project)
-        proj_tokens = sum((r.get("tokens", {}).get("in", 0) + r.get("tokens", {}).get("out", 0))
-                          for r in calls if r.get("project") == project)
         if ceiling and proj_tokens > ceiling:
             suggestions.append({
                 "type": "budget", "severity": "high",

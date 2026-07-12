@@ -83,7 +83,7 @@ class EscalationTests(unittest.TestCase):
 class CleanScanTests(unittest.TestCase):
     def test_clean_code_yields_no_findings_but_valid_report(self):
         tmp = tempfile.mkdtemp()
-        (Path(tmp) / "ok.py").write_text(guardian.__doc__ and "def f():\n    return 1\n")
+        (Path(tmp) / "ok.py").write_text("def f():\n    return 1\n")
         report = guardian.run_guardian(tmp)
         self.assertEqual(report["finding_count"], 0)
         self.assertIn("no findings", report["open_questions"][0])

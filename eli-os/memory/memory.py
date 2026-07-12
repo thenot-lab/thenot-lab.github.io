@@ -55,6 +55,10 @@ def hash_embed(text, dim=EMBED_DIM):
 
 
 def cosine(a, b):
+    # embed_fn is pluggable; a dimension mismatch (two different models) would
+    # otherwise let zip() silently truncate to a meaningless-but-valid score.
+    if len(a) != len(b):
+        raise ValueError(f"embedding dimension mismatch: {len(a)} vs {len(b)}")
     return sum(x * y for x, y in zip(a, b))  # inputs are already L2-normalized
 
 
@@ -97,6 +101,10 @@ def _init_schema(conn):
 class ShortTermStore:
     """Working set for one task. Shared across tiers so escalation carries it."""
 
+    # `column` is interpolated into SQL below, so it must never be caller-
+    # controlled — only these internal JSON-array columns may be appended to.
+    _APPENDABLE_COLUMNS = {"messages", "intermediate_outputs"}
+
     def __init__(self, conn):
         self.conn = conn
 
@@ -128,6 +136,8 @@ class ShortTermStore:
         self.conn.commit()
 
     def _append(self, session_id, column, item):
+        if column not in self._APPENDABLE_COLUMNS:
+            raise ValueError(f"column {column!r} is not appendable")
         row = self.conn.execute(
             f"SELECT {column} FROM short_term WHERE session_id=?", (session_id,)
         ).fetchone()
@@ -165,7 +175,7 @@ class LongTermStore:
         self.conn = conn
         self.embed_fn = embed_fn
 
-    def write(self, project, type, title, text, source=None, supersedes=None):
+    def write(self, project, record_type, title, text, source=None, supersedes=None):
         rec_id = "mem_" + hashlib.blake2b(
             f"{project}|{title}|{text}|{time.time()}".encode(), digest_size=8
         ).hexdigest()
@@ -174,7 +184,7 @@ class LongTermStore:
             "INSERT INTO long_term "
             "(id, project, type, title, text, embedding, source, created_at, supersedes) "
             "VALUES (?,?,?,?,?,?,?,?,?)",
-            (rec_id, project, type, title, text, emb, source, time.time(), supersedes),
+            (rec_id, project, record_type, title, text, emb, source, time.time(), supersedes),
         )
         # Write-back: a decision that supersedes another marks the old one, so
         # the store stays the living memory, not a stale dump.

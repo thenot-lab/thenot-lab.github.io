@@ -36,6 +36,9 @@ class InjectionSelfDefenseTests(unittest.TestCase):
     def test_benign_content_is_clean(self):
         screen = self.g.screen_tool_output("r", "The weather in Paris is sunny.")
         self.assertTrue(screen["clean"])
+        # A clean scan is still logged — the audit trail records every outcome.
+        self.assertTrue(any(rec["kind"] == "injection_screen"
+                            and rec["decision"] == "clean" for rec in self.records))
 
 
 class IrreversibleGateTests(unittest.TestCase):
@@ -83,6 +86,12 @@ class RBACTests(unittest.TestCase):
     def test_unknown_principal_denied(self):
         decision = self.g.check_action("r", "nobody", {"tool": "read"})
         self.assertEqual(decision["decision"], "denied")
+
+    def test_malformed_action_fails_closed(self):
+        # A missing 'tool' must be denied gracefully, never crash the gate.
+        decision = self.g.check_action("r", "admin", {})
+        self.assertEqual(decision["decision"], "denied")
+        self.assertTrue(any(rec["record"] == "gate" for rec in self.records))
 
 
 class TelemetryTests(unittest.TestCase):
