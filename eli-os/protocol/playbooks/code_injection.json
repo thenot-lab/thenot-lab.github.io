@@ -1,0 +1,20 @@
+{
+  "incident_class": "code_injection",
+  "detect": [
+    {"signal": "static rule (eval/exec/shell=True/pickle/SQL-interp) + WAF/error-log spike",
+     "threshold": ">=1 static match, or anomalous process/exec at runtime", "action": "open ticket; page on runtime signal"}
+  ],
+  "respond": [
+    "isolate the affected host/process (containment before cleanup)",
+    "replace the dangerous construct (parameterize SQL, drop shell=True, avoid pickle on untrusted input)",
+    "audit for lateral movement if the path was reachable and exercised"
+  ],
+  "harden": [
+    {"change": "eliminate the dynamic-exec / string-built query; use safe APIs", "phase": "prevent"},
+    {"change": "add a CI lint rule that fails the build on this pattern", "phase": "detect"}
+  ],
+  "recover": [
+    "confirm the construct is gone and tests cover the safe path",
+    "re-scan; confirm zero matches for the rule"
+  ]
+}

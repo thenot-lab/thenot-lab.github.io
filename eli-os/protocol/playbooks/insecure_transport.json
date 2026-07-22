@@ -1,0 +1,21 @@
+{
+  "$note": "Eli Protocol playbook (eli_protocol.md). JSON to keep the loader stdlib-only. Every playbook carries all four phases (prevent/detect/respond/recover).",
+  "incident_class": "insecure_transport",
+  "detect": [
+    {"signal": "static scan for verify=False / disabled cert validation on TLS clients",
+     "threshold": ">=1 match", "action": "open ticket, flag the calling code path"}
+  ],
+  "respond": [
+    "re-enable certificate verification on the flagged client and pin the trusted CA bundle",
+    "treat any data exchanged over the unverified channel as exposed to a MITM until proven otherwise",
+    "if the endpoint used a self-signed cert as the reason, add that cert to the trust store instead of disabling verification"
+  ],
+  "harden": [
+    {"change": "remove verify=False; use the system/CA bundle (or an explicit pinned CA) for TLS", "phase": "prevent"},
+    {"change": "add a lint/CI rule that fails on verify=False and equivalent cert-validation bypasses", "phase": "detect"}
+  ],
+  "recover": [
+    "confirm the client now rejects an invalid/expired certificate (negative test)",
+    "rotate any credential or token that transited the unverified channel"
+  ]
+}

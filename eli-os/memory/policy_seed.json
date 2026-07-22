@@ -1,0 +1,34 @@
+{
+  "$note": "Profile & policy store seed (memory/context_memory_spec.md). JSON rather than YAML to keep the runtime stdlib-only; PyYAML can be swapped in later without changing PolicyStore's interface.",
+  "version": "1.0",
+  "users": {
+    "admin": {
+      "role": "owner",
+      "permissions": ["all_tools", "irreversible_actions_with_gate"],
+      "tone": "direct",
+      "risk_threshold": "high"
+    },
+    "service_guardian": {
+      "role": "service",
+      "permissions": ["read_tools", "data_fetchers"],
+      "tone": "direct",
+      "risk_threshold": "low"
+    }
+  },
+  "policies": {
+    "force_top_tier_review_when": [
+      "output_is_security_critical",
+      "decision_is_high_impact",
+      "action_is_irreversible_and_external"
+    ],
+    "budgets": {
+      "per_project_daily_token_ceiling": {
+        "eli_guardian": 2000000,
+        "consulting": 1000000,
+        "companionbot": 500000,
+        "site_devtools": 250000
+      }
+    },
+    "top_tier_share_target": 0.10
+  }
+}

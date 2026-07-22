@@ -64,9 +64,12 @@ Per-tier API behavior baked in (from the current Claude API surface):
   `../../brain-stack/prompts/prompt_reasoner.md`) and repeated calls hit the
   prompt cache.
 
-## Not in Phase 1 (by design — see `../plans/roadmap.md`)
+## Later phases (now built — see `../plans/roadmap.md`)
 
-Memory stores and full cache-key bookkeeping (Phase 2), the task-graph engine
-(Phase 3), Guardian wiring (Phase 4), RBAC/injection screening/irreversible
-gate enforcement (Phase 5), dashboards (Phase 6). The `gate` telemetry record
-type exists now so Phase 5 has its audit-trail shape ready.
+The gateway is Phase 1. The rest of the stack builds on it and is implemented:
+memory stores + cache-key assembly (`../memory/`, Phase 2), the task-graph
+engine (`../orchestration/`, Phase 3), the Guardian pipeline
+(`../protocol/guardian.py`, Phase 4), the guardrails that consume this file's
+`gate` telemetry record type (`../observability/guardrails.py`, Phase 5), and
+the dashboard + feedback review (`../observability/`, Phase 6). `../demo.py`
+runs all of it together offline.

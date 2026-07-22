@@ -45,9 +45,24 @@ a product behavior (Eli Guardian, consulting) and how Eli OS protects itself.
 | `memory/context_memory_spec.md` | Short-term, long-term, and policy stores; escalation context handoff |
 | `orchestration/task_graph_spec.md` | DAG engine: node schema, tier assignment, restructure + review rules |
 | `observability/telemetry_spec.md` | Log record schema, guardrails, feedback loop |
-| `gateway/gateway.py` | **Phase 1 implementation**: classifier + router + model call + telemetry (stdlib-only) |
 | `plans/utilization_optimization.md` | Unified cost/utilization plan across all projects |
 | `plans/roadmap.md` | Phased build plan with acceptance criteria |
+
+## Implementation (stdlib-only; all phases built — see `plans/roadmap.md`)
+
+| Module | Phase | What it does |
+|--------|-------|--------------|
+| `gateway/gateway.py` | 1 | classifier + router (loads `routing/model_tree.json`) + Messages API call + telemetry |
+| `memory/memory.py` | 2 | short-term (SQLite), long-term vector, policy stores; escalation handoff |
+| `memory/prompt_assembly.py` | 2 | brain-stack stable-prefix assembly + cache key |
+| `orchestration/task_graph.py` | 3 | DAG engine (skip semantics, safe retry, concurrency) |
+| `protocol/guardian.py` + `protocol/playbooks/` | 4 | Guardian scan → tiered pipeline → `net_sec_hardening` report |
+| `observability/guardrails.py` | 5 | RBAC, content filter, injection screen, irreversible-action gate |
+| `observability/dashboard.py` + `review.py` | 6 | telemetry → signals + HTML report; feedback-review suggestions |
+| `demo.py` | — | runs the whole stack end to end, offline (no API key) |
+
+Run the suites: `python3 <dir>/test_*.py` (77 tests). Run the stack:
+`python3 demo.py`.
 
 ## Design stance (read before extending)
 
