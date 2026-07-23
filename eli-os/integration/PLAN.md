@@ -9,6 +9,14 @@ This plan decodes every item on the note, maps each to concrete work in the
 two repos that already exist, names dependencies, and gives a verify step.
 It is the roadmap; the tested Python in this folder is the first shipped slice.
 
+> **Reclassification (2026-07-23).** The product is the **Elli Chat App**
+> (repo `elli-chat-android`, seeded from `eli-companion-android`). The former
+> "Eli Companion" capture app is **not** a peer — it is Elli's **Diagnostics /
+> device-context tool**, a subsystem that feeds her captured signals. So below,
+> "the app" is the Elli Chat App; the capture layer is its Diagnostics
+> subsystem. The Kotlin package `com.dominionlabs.elicompanion` is kept (a
+> rename breaks the build + installed identity).
+
 ---
 
 ## Context — why this exists
