@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Tests for the router extension — the context→Ellie merge layer."""
+"""Tests for the router extension — the context→Elli merge layer."""
 import os
 import tempfile
 import unittest
 
 import context_bridge as cb
-import ellie_router_ext as ext
+import elli_router_ext as ext
 
 
 # A minimal stand-in for tool_router's surface, so these tests don't need the
@@ -16,7 +16,7 @@ def fresh_router():
     class FakeRouter:
         TOOLS = {"device_info": lambda a: {"tier": "READ", "rc": 0, "out": "model=KEY2"}}
         TOOL_SPEC = (
-            "You are Ellie.\n"
+            "You are Elli.\n"
             "  device_info{}                       -> model/os/battery/mem\n"
             "After a tool runs you receive RESULT.\n"
         )

@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-Ellie router extension — merges captured device context into the on-device
+Elli router extension — merges captured device context into the on-device
 model's tool surface and chat prompt.
 
 This is the piece that actually *connects* the Eli Companion capture app to
-Ellie (the on-device SLM served behind tool_router :8081). Without it, Ellie
+Elli (the on-device SLM served behind tool_router :8081). Without it, Elli
 can act on the phone but is blind to everything the companion captured. With
 it:
 
-  * Ellie gains READ tools (context_digest, recent_notifications,
+  * Elli gains READ tools (context_digest, recent_notifications,
     usage_summary, recent_messages, search_context, recall) that pull from
     the on-device ContextStore.
   * Every chat turn is grounded: the current device digest is injected into
-    the system prompt, so Ellie answers "what have I been doing today?"
+    the system prompt, so Elli answers "what have I been doing today?"
     without even needing a tool hop.
 
 Dependency-injected on purpose: it takes the router's TOOLS dict and TOOL_SPEC
@@ -65,7 +65,7 @@ def ground_messages(messages: list, store: ContextStore,
     grounding = {
         "role": system_role,
         "content": (
-            "You are Ellie, running on Brayd's own device. The following is "
+            "You are Elli, running on Brayd's own device. The following is "
             "PRIVATE on-device context captured by the Eli Companion app. Use "
             "it to answer grounded questions about the device and Brayd's day. "
             "Never send it anywhere; it stays on this phone.\n\n" + digest
@@ -79,7 +79,7 @@ def patch_tool_router(tool_router_module, store: ContextStore | None = None):
 
     On-device wiring (add to tool_router.main(), or a tiny sitecustomize):
 
-        import ellie_router_ext as ext
+        import elli_router_ext as ext
         ext.patch_tool_router(tool_router)   # after TOOLS/TOOL_SPEC defined
 
     After this call the router's agent loop can dispatch the context tools and

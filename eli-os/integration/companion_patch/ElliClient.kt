@@ -1,7 +1,7 @@
-// EllieClient.kt — companion-app client for the ON-DEVICE Ellie stack.
+// ElliClient.kt — companion-app client for the ON-DEVICE Elli stack.
 //
 // Reference implementation to drop into eli-companion-android at
-//   app/src/main/kotlin/com/dominionlabs/elicompanion/network/EllieClient.kt
+//   app/src/main/kotlin/com/dominionlabs/elicompanion/network/ElliClient.kt
 //
 // It connects the capture app to the two loopback services the Elli-Device
 // stack already runs in Termux:
@@ -9,10 +9,10 @@
 //   * context_bridge :8082 — the on-device captured-context store (this repo)
 //
 // Two responsibilities:
-//   1. chat(...)         — send a conversation to Ellie and get her reply +
+//   1. chat(...)         — send a conversation to Elli and get her reply +
 //                          the device tool trace (same shape the PWA parses).
 //   2. teeContextEvent() — mirror every captured event into the local context
-//                          store so Ellie can read it. Call this right next to
+//                          store so Elli can read it. Call this right next to
 //                          the existing host postEvent in mTLSClient.
 //
 // Loopback is NOT a security boundary on Android (other apps share 127.0.0.1),
@@ -32,7 +32,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.concurrent.TimeUnit
 
-class EllieClient(
+class ElliClient(
     private val settings: SettingsManager,
     private val routerUrl: String = "http://127.0.0.1:8081/v1/chat/completions",
     private val contextUrl: String = "http://127.0.0.1:8082/v1/context/event",
@@ -46,14 +46,14 @@ class EllieClient(
         .readTimeout(120, TimeUnit.SECONDS)
         .build()
 
-    private fun bearer(): String = "Bearer ${settings.ellieAuthToken.orEmpty()}"
+    private fun bearer(): String = "Bearer ${settings.elliAuthToken.orEmpty()}"
 
-    /** One chat turn against on-device Ellie. Returns her reply text plus the
+    /** One chat turn against on-device Elli. Returns her reply text plus the
      *  device tool trace (what she actually did). Throws on transport/HTTP
      *  error so the caller can show "router offline — is Termux up?". */
-    fun chat(history: List<ChatMessage>, model: String = "elli-device-1b"): EllieReply {
-        if (settings.ellieAuthToken.isNullOrBlank()) {
-            throw IllegalStateException("Ellie auth token not set (see ~/.elli_env on device)")
+    fun chat(history: List<ChatMessage>, model: String = "elli-device-1b"): ElliReply {
+        if (settings.elliAuthToken.isNullOrBlank()) {
+            throw IllegalStateException("Elli auth token not set (see ~/.elli_env on device)")
         }
         val req = ChatRequest(model = model, messages = history)
         val body = json.encodeToString(ChatRequest.serializer(), req)
@@ -64,11 +64,11 @@ class EllieClient(
             .post(body)
             .build()
         client.newCall(request).execute().use { r ->
-            if (!r.isSuccessful) throw java.io.IOException("Ellie router HTTP ${r.code}")
+            if (!r.isSuccessful) throw java.io.IOException("Elli router HTTP ${r.code}")
             val text = r.body?.string() ?: throw java.io.IOException("empty reply")
             val parsed = json.decodeFromString(ChatResponse.serializer(), text)
             val content = parsed.choices.firstOrNull()?.message?.content ?: "(empty reply)"
-            return EllieReply(content = content, model = parsed.model, trace = parsed.tool_trace)
+            return ElliReply(content = content, model = parsed.model, trace = parsed.tool_trace)
         }
     }
 
@@ -76,7 +76,7 @@ class EllieClient(
      *  forget: a failure here must never disrupt capture. Call alongside the
      *  existing host postEvent in mTLSClient (same `type`/`payload`). */
     fun teeContextEvent(type: String, payload: JsonObject) {
-        val token = settings.ellieAuthToken
+        val token = settings.elliAuthToken
         if (token.isNullOrBlank()) return
         val event = ContextEvent(type = type, payload = payload, ts = nowIso())
         val body = json.encodeToString(ContextEvent.serializer(), event)
@@ -95,7 +95,7 @@ class EllieClient(
     private fun nowIso(): String =
         java.time.Instant.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS).toString()
 
-    data class EllieReply(val content: String, val model: String, val trace: JsonElement?)
+    data class ElliReply(val content: String, val model: String, val trace: JsonElement?)
 
     @Serializable data class ChatMessage(val role: String, val content: String)
 

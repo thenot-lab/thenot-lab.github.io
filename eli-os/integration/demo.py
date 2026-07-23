@@ -6,10 +6,10 @@ Simulates the whole path the real system runs on-device:
 
     Eli Companion (capture) --/v1/context/event--> ContextStore
                                                        |
-    Ellie chat turn  <--grounded system prompt-- ellie_router_ext
+    Elli chat turn  <--grounded system prompt-- elli_router_ext
                      --TOOL: context tool-->  ContextStore read
 
-The model call is stubbed (a scripted Ellie) so this runs with no llama-server
+The model call is stubbed (a scripted Elli) so this runs with no llama-server
 and no API key — it demonstrates wiring, not model quality. Run:
 
     python3 eli-os/integration/demo.py
@@ -18,7 +18,7 @@ import json
 import tempfile
 
 import context_bridge as cb
-import ellie_router_ext as ext
+import elli_router_ext as ext
 
 
 def main():
@@ -43,14 +43,14 @@ def main():
         print(f"  ingested {e['type']:16} -> id={r['id']} derived={r['derived']}")
 
     print("\n" + "=" * 66)
-    print("2. Ellie's turn is GROUNDED with the on-device context digest")
+    print("2. Elli's turn is GROUNDED with the on-device context digest")
     print("=" * 66)
     user_msg = {"role": "user", "content": "what have I been up to and who needs me?"}
     grounded = ext.ground_messages([user_msg], store)
     print(grounded[0]["content"])
 
     print("\n" + "=" * 66)
-    print("3. Ellie can also CALL context tools mid-chat (tool_router contract)")
+    print("3. Elli can also CALL context tools mid-chat (tool_router contract)")
     print("=" * 66)
     tools = cb.make_tools(store)
     for call in [("usage_summary", {"window_hours": 24}),
@@ -67,11 +67,11 @@ def main():
         print(f"  -> [{res['tier']}] rc={res['rc']} {out}")
 
     print("\n" + "=" * 66)
-    print("4. What Ellie would say (scripted here — real Ellie is the SLM)")
+    print("4. What Elli would say (scripted here — real Elli is the SLM)")
     print("=" * 66)
     usage = store.usage_summary()[:3]
     top = ", ".join(f"{u['package'].split('.')[-1]}" for u in usage)
-    print(f"  Ellie: You've mostly been in {top} today. Mom messaged twice on")
+    print(f"  Elli: You've mostly been in {top} today. Mom messaged twice on")
     print( "         WhatsApp and by SMS (wants milk), and Slack flagged a failed")
     print( "         deploy — that Slack one looks time-sensitive.")
     print("\n[demo complete — offline, on-device path verified]")

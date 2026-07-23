@@ -1,4 +1,4 @@
-# Companion patch — drop-in Kotlin + wiring for the Ellie connection
+# Companion patch — drop-in Kotlin + wiring for the Elli connection
 
 These are **reference implementations** for the `eli-companion-android` repo.
 They live here (not in that private repo) because this session's write scope is
@@ -6,7 +6,7 @@ They live here (not in that private repo) because this session's write scope is
 
 ## Files
 
-- **`EllieClient.kt`** → `app/src/main/kotlin/com/dominionlabs/elicompanion/network/EllieClient.kt`
+- **`ElliClient.kt`** → `app/src/main/kotlin/com/dominionlabs/elicompanion/network/ElliClient.kt`
   On-device client for `tool_router :8081` (chat) + `context_bridge :8082`
   (event tee). Complete and self-contained.
 
@@ -14,16 +14,16 @@ They live here (not in that private repo) because this session's write scope is
 
 1. **`data/SettingsManager.kt`** — add one setting:
    ```kotlin
-   var ellieAuthToken: String?    // the ELLI_AUTH_TOKEN from ~/.elli_env on device
-       get() = prefs.getString("ellie_auth_token", null)
-       set(v) { prefs.edit().putString("ellie_auth_token", v).apply() }
+   var elliAuthToken: String?    // the ELLI_AUTH_TOKEN from ~/.elli_env on device
+       get() = prefs.getString("elli_auth_token", null)
+       set(v) { prefs.edit().putString("elli_auth_token", v).apply() }
    ```
 
 2. **`network/mTLSClient.kt`** — tee captured events to the on-device store.
    In `postEvent` and `postObserverEvent`, after the existing host call, add:
    ```kotlin
-   // Mirror to on-device Ellie so she can use this context (fire-and-forget).
-   EllieClient(settingsManager).teeContextEvent(type, payloadAsJsonObject)
+   // Mirror to on-device Elli so she can use this context (fire-and-forget).
+   ElliClient(settingsManager).teeContextEvent(type, payloadAsJsonObject)
    ```
    (`postObserverEvent` already has a `JsonObject`; `postEvent`'s
    `Map<String,String>` converts with the existing `anyToJson` helper.)
@@ -36,9 +36,9 @@ They live here (not in that private repo) because this session's write scope is
    and a Home button into `chat`.
 
 4. **Device side (`eli/runtime/device_inference/tool_router.py`)** — 3 lines in
-   `main()` so Ellie gets the context tools + grounding:
+   `main()` so Elli gets the context tools + grounding:
    ```python
-   import ellie_router_ext as ext          # from this folder, deployed alongside
+   import elli_router_ext as ext          # from this folder, deployed alongside
    store = ext.patch_tool_router(sys.modules[__name__])
    # run context_bridge.main() in a second thread, or as its own Termux service
    ```
@@ -49,7 +49,7 @@ They live here (not in that private repo) because this session's write scope is
 - `data/ConversationStore.kt` — Room threads/messages (item 2).
 - `voice/VoiceIO.kt` — TextToSpeech + SpeechRecognizer (item 5).
 - `ui/GalleryScreen.kt` + `capture/MediaIndexer.kt` — gallery/footfinder (item 6).
-- `connector/AppConnector.kt` — Ellie's tool loop → `EliAgenticEngine` (item 7).
+- `connector/AppConnector.kt` — Elli's tool loop → `EliAgenticEngine` (item 7).
 
 No new third-party dependencies are required: OkHttp, kotlinx-serialization,
 Room, Compose, and the media/speech APIs are all already on the classpath or

@@ -1,4 +1,4 @@
-# Eli Companion ⇄ Ellie — Integration & Full-App Build Plan
+# Eli Companion ⇄ Elli — Integration & Full-App Build Plan
 
 **Source:** handwritten planning note (2026-07) + Brayd directives:
 > "the Elli apk and ai inference software is present, the companion app is
@@ -18,22 +18,22 @@ Two halves are already built but not connected:
 | Half | Repo / path | What it does today |
 |---|---|---|
 | **Capture / "diagnostic" app** | `thenot-lab/eli-companion-android` | Native Kotlin/Compose app. Captures notifications, app usage, SMS, screenshots, body sensors, share-sheet, accessibility. Ships them **to the host bridge** over mTLS. Has a pairing flow, PIN auth, audit log, and an accessibility-driven **agentic engine**. |
-| **Ellie / the SLM** | `thenot-lab/eli` → `runtime/device_inference/` | `llama-server` (llama.cpp) serving the quantized **Elli-Device GGUF** on `:8080`; `tool_router.py` on `:8081` (OpenAI-compatible chat + tiered, floor-gated device tools); a standalone **PWA** chat UI. |
+| **Elli / the SLM** | `thenot-lab/eli` → `runtime/device_inference/` | `llama-server` (llama.cpp) serving the quantized **Elli-Device GGUF** on `:8080`; `tool_router.py` on `:8081` (OpenAI-compatible chat + tiered, floor-gated device tools); a standalone **PWA** chat UI. |
 
 **The gap:** the companion sends its rich context to the *host*, so on-device
-Ellie — who can already act on the phone — is **blind to everything the
+Elli — who can already act on the phone — is **blind to everything the
 companion captured**. She can open an app but can't answer "what have I been
-doing today?" The whole note is the bridge that closes this: give Ellie the
+doing today?" The whole note is the bridge that closes this: give Elli the
 captured data, a real in-app chat with memory, voice, media, and full task
 execution — and ship it as one working APK.
 
 **Target architecture (all on-device, loopback, no cloud):**
 
 ```
-[Eli Companion APK  →  renamed/branded "Ellie"]
+[Eli Companion APK  →  renamed/branded "Elli"]
   capture layer ──────────► host bridge (unchanged, mTLS)            [existing]
   capture layer ──────────► context_bridge :8082  (NEW: on-device store)
-  Ellie Chat screen ──────► tool_router :8081  (the SLM)             [existing SLM]
+  Elli Chat screen ──────► tool_router :8081  (the SLM)             [existing SLM]
         ▲                        │
         │                        └─ context_digest injected + READ context tools
         └─ conversation sidebar + inferenced memory (Room, on-device)
@@ -42,7 +42,7 @@ execution — and ship it as one working APK.
   App Connector ──────────► EliAgenticEngine + tool_router tools     [existing, promoted]
 ```
 
-`context_bridge.py` + `ellie_router_ext.py` in this folder are the on-device
+`context_bridge.py` + `elli_router_ext.py` in this folder are the on-device
 data spine — **built and tested here** (24 passing tests, offline demo).
 
 ---
@@ -67,21 +67,21 @@ as drop-in reference + spec** and assembled to an APK by CI or Android Studio.
 
 Each item: **What it means · Where it lands · Depends on · Verify.**
 
-### 1. "Rename Eli → Ellie / Diagnostics"
+### 1. "Rename Eli → Elli / Diagnostics"
 - **What:** The capture app is currently labelled `Eli` and reads as pure
-  telemetry. Rebrand it as **Ellie** (the assistant) with the capture layer
+  telemetry. Rebrand it as **Elli** (the assistant) with the capture layer
   presented as her **Diagnostics** subsystem. Model identity string on the
-  device (`ELLI_MODEL_ID`, PWA `<h1>`) already says Elli/Ellie — align them.
+  device (`ELLI_MODEL_ID`, PWA `<h1>`) already says Elli — align them.
 - **Where:** `app/src/main/res/values/strings.xml` (`app_name`),
   `AndroidManifest.xml` `android:label`, `OnboardingScreen`/`HomeScreen`
   titles, launcher icon. Model id in `tool_router.py` (`ELLI_MODEL_ID`).
 - **Depends on:** nothing — pure rename; do first so all new UI is consistent.
-- **Verify:** launcher shows "Ellie"; chat header + assistant role read "Ellie".
+- **Verify:** launcher shows "Elli"; chat header + assistant role read "Elli".
 
 ### 2. "All Conversation, Sidebar, and Inferenced memory"
 - **What:** A real chat surface with (a) a **conversation list sidebar**
   (drawer) of past threads, and (b) **inferenced memory** — durable facts
-  Ellie distils from captured context + chats, persisted and re-injected.
+  Elli distils from captured context + chats, persisted and re-injected.
 - **Where:**
   - Kotlin: new `ui/ChatScreen.kt` + `ui/ConversationDrawer.kt`, a
     `data/ConversationStore.kt` (Room: `conversations`, `messages`).
@@ -93,15 +93,15 @@ Each item: **What it means · Where it lands · Depends on · Verify.**
   `test_digest_*` (pass); on device, a thread list persists across launches.
 
 ### 3. "Eli Connect (Data)" — the connection ★ core of the ask
-- **What:** Wire the capture layer into Ellie so she can **utilize the data**.
-  Every captured event is also written to the on-device `ContextStore`; Ellie's
+- **What:** Wire the capture layer into Elli so she can **utilize the data**.
+  Every captured event is also written to the on-device `ContextStore`; Elli's
   chat is grounded with the digest and can call READ context tools.
 - **Where (shipped in this folder):**
   - `context_bridge.py` — SQLite store + ingest HTTP endpoint
     (`POST /v1/context/event`, loopback, bearer, fail-closed) + the six READ
     tools (`context_digest`, `recent_notifications`, `usage_summary`,
     `recent_messages`, `search_context`, `recall`).
-  - `ellie_router_ext.py` — merges those tools into `tool_router.TOOLS` and
+  - `elli_router_ext.py` — merges those tools into `tool_router.TOOLS` and
     grounds each turn (`ground_messages`, `patch_tool_router`).
   - **Companion side (to add):** in `network/mTLSClient.kt`, tee each
     `postEvent`/`postObserverEvent` to the local bridge
@@ -109,13 +109,13 @@ Each item: **What it means · Where it lands · Depends on · Verify.**
     call next to the existing host POST. No new capture code needed; reuse
     `CaptureCoordinator` and every existing reader.
   - **Device side (to add, 3 lines):** in `tool_router.main()`,
-    `import ellie_router_ext as ext; ext.patch_tool_router(tool_router)`.
+    `import elli_router_ext as ext; ext.patch_tool_router(tool_router)`.
 - **Depends on:** nothing new — reuses existing capture + existing tool_router.
 - **Verify:** `python3 demo.py` (offline, prints grounded prompt + tool calls);
-  `test_ellie_router_ext.py` (7 pass).
+  `test_elli_router_ext.py` (7 pass).
 
 ### 4. "Image / Video Selector"
-- **What:** Let Brayd attach an image/video to a chat, and let Ellie reference
+- **What:** Let Brayd attach an image/video to a chat, and let Elli reference
   on-device media.
 - **Where:** Kotlin `ActivityResultContracts.PickVisualMedia` (photo picker,
   no broad storage grant needed) in `ChatScreen`; selected URI → a
@@ -125,28 +125,28 @@ Each item: **What it means · Where it lands · Depends on · Verify.**
 - **Verify:** picking an image adds a chat attachment chip; a `media` event
   lands in the store (`recent` returns it — same path as `test_unknown_type_still_stored`).
 
-### 5. "SLM → Ellie: wire to assistant, adopt a voice for her"
+### 5. "SLM → Elli: wire to assistant, adopt a voice for her"
 - **What:** Make the on-device **SLM** (tool_router `:8081`) the in-app
-  assistant backend, and give Ellie **voice** — speak replies (TTS) and accept
-  spoken input (STT). The manifest already registers Ellie for the
+  assistant backend, and give Elli **voice** — speak replies (TTS) and accept
+  spoken input (STT). The manifest already registers Elli for the
   `ASSIST` / `VOICE_COMMAND` roles, so she can replace Google Assistant on KEY2.
 - **Where:**
-  - Kotlin `network/EllieClient.kt` — OkHttp client to
+  - Kotlin `network/ElliClient.kt` — OkHttp client to
     `http://127.0.0.1:8081/v1/chat/completions`, bearer from settings, parses
     `choices[].message.content` + `x_elli_tool_trace` (same shape the PWA uses).
-    Reference implementation shipped at `companion_patch/EllieClient.kt`.
+    Reference implementation shipped at `companion_patch/ElliClient.kt`.
   - Kotlin `voice/VoiceIO.kt` — `android.speech.tts.TextToSpeech` +
     `SpeechRecognizer`; mic permission (`RECORD_AUDIO`, already in manifest).
   - Optional richer voice: host `runtime/ld_compat_voice*.py` already exists as
     a server-side path; on-device TTS is the zero-dependency default.
 - **Depends on:** item 3 (so replies are grounded); tool_router running on device.
 - **Verify:** with `llama-server` + `tool_router` up, a chat turn returns a
-  grounded reply; `EllieClient` unit test mocks the HTTP and asserts parse.
+  grounded reply; `ElliClient` unit test mocks the HTTP and asserts parse.
 
 ### 6. "Build footfinder + dedicated screen for gallery"
 - **What:** A **media/file finder** ("footfinder" — an on-device indexer over
   MediaStore + shared storage) and a **dedicated Gallery screen** to browse it,
-  feeding results to Ellie.
+  feeding results to Elli.
 - **Where:** Kotlin `ui/GalleryScreen.kt` (grid over `MediaStore.Images/Video`),
   `capture/MediaIndexer.kt` (enumerate + emit `media_index` context events).
   Reuse `ContextStore.search` for "find the photo about X" via captured labels.
@@ -156,15 +156,15 @@ Each item: **What it means · Where it lands · Depends on · Verify.**
 
 ### 7. "App Connector for full task execution / full controllability"
 - **What:** Promote the existing **agentic engine** into a first-class **App
-  Connector** so Ellie executes real multi-step tasks across apps — click,
+  Connector** so Elli executes real multi-step tasks across apps — click,
   type, swipe, launch, read-screen, plus the tool_router device tiers.
 - **Where:** existing `agentic/EliAgenticEngine.kt` (already does gestures,
   text, global actions, read-screen) + `tool_router.py` ACT/PRIV tiers. Add a
-  `connector/AppConnector.kt` that turns Ellie's `TOOL:` lines into
+  `connector/AppConnector.kt` that turns Elli's `TOOL:` lines into
   `AgenticCommand`s and returns results into the chat — the on-device analogue
   of the router's tool loop, gated by `agenticEnabled` + accessibility grant +
   the **floor** (wipe/uninstall-system/money always refused).
-- **Depends on:** items 3 + 5 (Ellie must be wired and grounded first).
+- **Depends on:** items 3 + 5 (Elli must be wired and grounded first).
 - **Verify:** existing `PairingUriTest` + agentic smoke tests; a scripted task
   ("open Settings, read the screen") round-trips through the connector.
 
@@ -192,14 +192,14 @@ Each item: **What it means · Where it lands · Depends on · Verify.**
 3. **Chat + sidebar + memory** (item 2) — needs spine.
 4. **SLM + voice** (item 5) — needs chat.
 5. **Media selector** (item 4) → **Gallery/Footfinder** (item 6).
-6. **App Connector** (item 7) — needs Ellie wired + grounded.
+6. **App Connector** (item 7) — needs Elli wired + grounded.
 7. **Assemble APK** — Android Studio or `ci/build-apk.yml`; sign; sideload.
 
 ## How to verify the whole thing
 
-- **Now, here:** `python3 test_context_bridge.py && python3 test_ellie_router_ext.py
+- **Now, here:** `python3 test_context_bridge.py && python3 test_elli_router_ext.py
   && python3 demo.py` — spine + merge + offline loop.
 - **On device:** run `llama-server` + `tool_router` (+ `context_bridge`) in
-  Termux; sideload the APK; pair; ask Ellie "what have I been doing today?" —
+  Termux; sideload the APK; pair; ask Elli "what have I been doing today?" —
   she answers from captured context; give a spoken command; run an App
   Connector task. Full device walk per the `eli-device-walk` skill.

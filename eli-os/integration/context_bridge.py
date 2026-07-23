@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Eli/Ellie context bridge — the on-device "Connect (Data)" spine.
+Eli/Elli context bridge — the on-device "Connect (Data)" spine.
 
 This is the missing link between the two halves that already exist:
 
@@ -9,7 +9,7 @@ This is the missing link between the two halves that already exist:
   [Elli-Device / SLM]  --chats + acts on the device via tool_router :8081
 
 Today the companion ships everything to the *host* bridge; the on-device
-model (Ellie) can act on the phone but cannot *see* any of that captured
+model (Elli) can act on the phone but cannot *see* any of that captured
 context. This module closes the loop entirely on-device:
 
   1. It stores captured events in a local SQLite DB (loopback-only).
@@ -18,9 +18,9 @@ context. This module closes the loop entirely on-device:
      a real row and carries a confidence + provenance).
   3. It exposes read tools with the SAME contract tool_router already uses
      ({"tier","rc","out"}), so they drop straight into tool_router.TOOLS
-     and Ellie can call them mid-chat.
+     and Elli can call them mid-chat.
   4. It assembles a compact "context digest" for injection into the chat
-     system prompt so Ellie is grounded in the device's current state
+     system prompt so Elli is grounded in the device's current state
      without the model having to call a tool first.
 
 Design rules carried verbatim from tool_router.py (keep the two consistent):
@@ -332,7 +332,7 @@ CONTEXT_TOOL_SPEC = (
     "  usage_summary{window_hours?}        -> per-app foreground time\n"
     "  recent_messages{limit?}             -> recent SMS + shared text\n"
     "  search_context{query,limit?}        -> keyword search over captured events\n"
-    "  recall{query?}                      -> durable facts Ellie has inferred\n"
+    "  recall{query?}                      -> durable facts Elli has inferred\n"
 )
 
 
