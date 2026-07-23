@@ -45,3 +45,24 @@ phone. Host telemetry remains the separate, already-mTLS path.
 3. Start `context_bridge.py` as a second service (or a thread from
    `tool_router.main()`), then apply the 3-line `patch_tool_router` wiring.
 4. Apply the companion patch (`companion_patch/README.md`) and build the APK.
+
+## Status (2026-07-23)
+
+The full companion-app expansion is **implemented and pushed** to
+`eli-companion-android` branch **`claude/elli-integration`** (v1.6.0): the
+Elli chat + conversation sidebar + inferenced memory, the Connect (Data) tee,
+image/video picker, voice I/O, gallery/footfinder, and the App Connector —
+all seven note items. The device-side spine here (`context_bridge.py` +
+`elli_router_ext.py`) is tested (21 passing) and the offline loop runs.
+
+**The signed APK still needs to be assembled** — that couldn't happen in the
+build sandbox for two independent reasons:
+- the sandbox network policy blocks Google's SDK host (`dl.google.com`), so a
+  local Android build can't fetch the platform/build-tools; and
+- the repo's GitHub Actions runs **startup-fail with 0 jobs** (an account-level
+  Actions block — exhausted private-repo minutes or a spending limit), so the
+  `build-apk` CI can't start.
+
+To produce the APK: either (a) restore GitHub Actions minutes/billing on the
+account and re-run the `build-apk` workflow (artifact `elli-apk`), or (b) open
+the branch in Android Studio (SDK + network present) and `assembleDebug`.
