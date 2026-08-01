@@ -121,3 +121,7 @@ The generic design assumes a fleet; Dominion runs it on one box.
 
 Rule: every component must pass the **home-executable** check
 (`brain-stack/failure_modes.md#non-home-executable`).
+
+Runnable artifacts for this table live in `deploy/`: a BRA.Y.AI service
+registration for the home box and a hardened systemd unit for a VPS, both
+serving the gateway loopback-only on port 8484 (roadmap Phase 7).

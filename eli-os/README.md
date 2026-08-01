@@ -59,6 +59,7 @@ a product behavior (Eli Guardian, consulting) and how Eli OS protects itself.
 | `protocol/guardian.py` + `protocol/playbooks/` | 4 | Guardian scan → tiered pipeline → `net_sec_hardening` report |
 | `observability/guardrails.py` | 5 | RBAC, content filter, injection screen, irreversible-action gate |
 | `observability/dashboard.py` + `review.py` | 6 | telemetry → signals + HTML report; feedback-review suggestions |
+| `deploy/` | 7 | run the gateway as a managed service: BRA.Y.AI registration (home box) + systemd unit (VPS) |
 | `demo.py` | — | runs the whole stack end to end, offline (no API key) |
 
 Run the suites: `python3 <dir>/test_*.py` (77 tests). Run the stack:

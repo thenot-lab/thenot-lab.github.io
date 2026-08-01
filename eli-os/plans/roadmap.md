@@ -65,11 +65,22 @@ single admin, one box, zero/low dependency.
 - **Acceptance:** the review produces at least one concrete, reviewed routing/
   prompt PR from real telemetry; top-tier share stays within target.
 
+## Phase 7 — Deployment (home box / VPS) ✅ (`deploy/`)
+
+- **Deliverable:** the ARCHITECTURE §8 deployment view as artifacts: a
+  BRA.Y.AI service registration for the Dominion home box (launcher +
+  config entry + health check on `GET /healthz`, port 8484) and a hardened
+  systemd unit for a small VPS. Secrets stay in env files outside the repo.
+- **Acceptance:** the gateway starts and restarts under the service manager
+  (not by hand); `/healthz` returns the loaded policy version; telemetry
+  accumulates at the configured `ELI_TELEMETRY` path and the dashboard
+  renders from it unchanged. Runs on the box — see `deploy/README.md`.
+
 ## Dependency order
 
 ```text
 Phase 0 ─▶ 1 ─▶ 2 ─▶ 3 ─▶ 4
-               └────────▶ 5 ─▶ 6
+               └────────▶ 5 ─▶ 6 ─▶ 7
 ```
 
 Phase 5 (guardrails) can start once the gateway (1) exists; everything else is
@@ -92,6 +103,7 @@ guardrails gate → dashboard + feedback review over the shared telemetry log.
 | 4 | `protocol/guardian.py` + `playbooks/` | 9 |
 | 5 | `observability/guardrails.py` | 13 |
 | 6 | `observability/dashboard.py`, `observability/review.py` | 12 |
+| 7 | `deploy/` (launcher, BRA.Y.AI entry, systemd unit) | — (smoke: serve → `/healthz` → telemetry) |
 
 The models are called through the Anthropic Messages API (`gateway.call_model`);
 everything else — routing, memory, orchestration, scanning, guardrails,

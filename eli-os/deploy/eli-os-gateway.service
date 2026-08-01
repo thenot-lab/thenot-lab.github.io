@@ -1,0 +1,25 @@
+# Eli OS Gateway — systemd unit for a small VPS (ARCHITECTURE.md §8).
+# Edit WorkingDirectory to the repo clone; secrets live in
+# /etc/eli-os/gateway.env (mode 600), never in the repo.
+[Unit]
+Description=Eli OS Gateway (Dominion Labs)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/dominion/thenot-lab.github.io/eli-os/gateway
+EnvironmentFile=-/etc/eli-os/gateway.env
+Environment=ELI_TELEMETRY=/var/lib/eli-os/telemetry.jsonl
+StateDirectory=eli-os
+ExecStart=/usr/bin/python3 gateway.py serve --port 8484
+Restart=on-failure
+RestartSec=5
+
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

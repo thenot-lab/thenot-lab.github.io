@@ -1,0 +1,14 @@
+{
+  "eli_os_gateway": {
+    "name": "EliOSGateway",
+    "ecosystem": "Core AI",
+    "cwd": "<repo-clone>/eli-os/gateway",
+    "start": "python gateway.py serve --port 8484",
+    "port": 8484,
+    "health": "/healthz",
+    "env_file": "C:\\Users\\Brayj\\BrightValley\\eli\\.env",
+    "env": {
+      "ELI_TELEMETRY": "C:\\Users\\Brayj\\BrightValley\\brayai\\logs\\eli_os_telemetry.jsonl"
+    }
+  }
+}
