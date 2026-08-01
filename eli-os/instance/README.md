@@ -77,6 +77,21 @@ read. Durable on both transports; either one alone survives.
 - Handoff test: `snapshot.py handoff --read` on machine B returns what
   machine A wrote, byte-identical.
 
+## Headless / Linux transport: rclone
+
+On machines without the OneDrive client (VPS, Termux, the home box running
+headless), the same core is reachable via rclone — and this matches the
+transport the ecosystem's existing continuance automation already uses
+(`rclone` → an `onedrive:` remote). After `rclone config` once:
+
+```sh
+rclone copy "$ELI_RUNTIME_SNAPSHOTS" onedrive:DominionLabs/eli-instance/state
+rclone copy onedrive:DominionLabs/eli-instance/handoffs /tmp/handoffs
+```
+
+`snapshot.py` doesn't care how the core folder syncs — client, rclone, or
+both — because every artifact is a whole, stamped, atomically-renamed file.
+
 ## Explicit non-goals
 
 - OneDrive does not run anything; there is no "execution in the cloud drive."
