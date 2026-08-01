@@ -60,6 +60,7 @@ a product behavior (Eli Guardian, consulting) and how Eli OS protects itself.
 | `observability/guardrails.py` | 5 | RBAC, content filter, injection screen, irreversible-action gate |
 | `observability/dashboard.py` + `review.py` | 6 | telemetry → signals + HTML report; feedback-review suggestions |
 | `deploy/` | 7 | run the gateway as a managed service: BRA.Y.AI registration (home box) + systemd unit (VPS) |
+| `instance/` | 8 | survivable instance: OneDrive-resident durable core (state snapshots, repo bundle, handoffs) + rebuild bootstrap |
 | `demo.py` | — | runs the whole stack end to end, offline (no API key) |
 
 Run the suites: `python3 <dir>/test_*.py` (77 tests). Run the stack:

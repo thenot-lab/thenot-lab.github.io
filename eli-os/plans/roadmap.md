@@ -76,11 +76,26 @@ single admin, one box, zero/low dependency.
   accumulates at the configured `ELI_TELEMETRY` path and the dashboard
   renders from it unchanged. Runs on the box — see `deploy/README.md`.
 
+## Phase 8 — Survivable instance (OneDrive core) ✅ (`instance/`)
+
+- **Deliverable:** the instance split into a OneDrive-resident **durable
+  core** (atomic, host+timestamp-stamped state snapshots via `VACUUM INTO`,
+  telemetry copies, a git bundle of the repo, session handoffs) and a
+  disposable **local runtime**; `snapshot.py` does every core write,
+  `bootstrap.ps1` rebuilds a working gateway on a fresh machine from the
+  synced folder alone. Handoffs dual-write to a git branch so cloud
+  sessions (which cannot mount OneDrive) still read them.
+- **Acceptance:** wipe test (fresh machine → bootstrap → `/healthz` + last
+  snapshot's data present); conflict test (two hosts, same minute → two
+  files, no `-conflict` copies); handoff round-trip byte-identical.
+  Verified offline: snapshot → wipe → restore, bundle re-clone, handoff
+  read-back.
+
 ## Dependency order
 
 ```text
 Phase 0 ─▶ 1 ─▶ 2 ─▶ 3 ─▶ 4
-               └────────▶ 5 ─▶ 6 ─▶ 7
+               └────────▶ 5 ─▶ 6 ─▶ 7 ─▶ 8
 ```
 
 Phase 5 (guardrails) can start once the gateway (1) exists; everything else is
@@ -104,6 +119,7 @@ guardrails gate → dashboard + feedback review over the shared telemetry log.
 | 5 | `observability/guardrails.py` | 13 |
 | 6 | `observability/dashboard.py`, `observability/review.py` | 12 |
 | 7 | `deploy/` (launcher, BRA.Y.AI entry, systemd unit) | — (smoke: serve → `/healthz` → telemetry) |
+| 8 | `instance/` (snapshot.py, bootstrap.ps1) | — (smoke: snapshot → wipe → restore → handoff) |
 
 The models are called through the Anthropic Messages API (`gateway.call_model`);
 everything else — routing, memory, orchestration, scanning, guardrails,
