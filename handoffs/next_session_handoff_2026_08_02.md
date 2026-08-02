@@ -53,7 +53,7 @@ proven workflow to main with `fix/**` in the push triggers → `8371248`.
 main's first-ever CI run 30726517857 = green, and it retroactively verified
 PR #8's compile. Every push to main / claude/** / fix/** now builds an APK.
 
-## 5. Back-merge main → claude/elli-integration DONE — verification in flight.
+## 5. Back-merge main → claude/elli-integration DONE — VERIFIED GREEN.
 
 Merge commit `8712efc` (required un-shallowing the clone first). Union
 resolution in SettingsScreen: kept Elli state (token/mirror/voice) AND took
@@ -61,10 +61,12 @@ main's capture-truth polling; deduped the host-address validator; workflow
 kept `fix/**`. PR #5/#6 fixes auto-merged into MainActivity, SettingsManager,
 mTLSClient, HomeScreen.
 
-**FIRST ACTION FOR NEXT SESSION:** check the newest build-apk run on
-`claude/elli-integration` for `8712efc`. Green → that run's `elli-apk` is the
-definitive APK (Elli features + editable host + capture truth). Red → fix the
-Kotlin error and re-push; the union merge is the only new code.
+RESOLVED before session end: run 30738991754 on `8712efc` = **success**.
+**The definitive APK is that run's `elli-apk`: 20,408,064 B, sha256
+7a56197f…8a53ae, valid to 2026-10-31** — Elli features + editable host +
+capture truth in one build. No open verification remains; the Drive copy of
+this handoff still lists the check as first action — it will simply confirm
+green.
 
 ## 6. Sideload notes (Brayd's KEY2 runs Android 15)
 
