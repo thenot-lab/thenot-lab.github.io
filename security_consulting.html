@@ -455,12 +455,13 @@
             <div class="service-card">
                 <h3>Security Snapshot</h3>
                 <div class="price">$500</div>
-                <div class="duration">2-4 hours | Rapid baseline</div>
+                <div class="duration">Delivered within 3 business days</div>
                 <ul>
                     <li>Automated codebase scan (Guardian)</li>
                     <li>Secrets, injection and unsafe-call detection (Guardian)</li>
+                    <li>Dependency and supply-chain advisories (OSV database)</li>
                     <li>STRIDE threat model (high-level)</li>
-                    <li>Top 10 critical findings</li>
+                    <li>Every finding ranked by severity, with exact file and line</li>
                     <li>Executive summary + remediation guide</li>
                 </ul>
                 <a href="https://buy.stripe.com/eVq4gzfHU9ZD7V0e1weQM0a" class="cta">Start Snapshot</a>
@@ -609,7 +610,9 @@
     <section class="trust">
         <h3>Tools & Research We Use</h3>
         <div class="tools-list">
-            <div class="tool">Guardian (Dominion Labs proprietary static analysis)</div>
+            <div class="tool">Guardian (Dominion Labs static analysis: secrets, injection, unsafe calls, CORS, error disclosure)</div>
+            <div class="tool">CWE rule set (22 weakness classes, Python and JavaScript/TypeScript)</div>
+            <div class="tool">OSV (open source vulnerability database, for dependencies)</div>
             <div class="tool">Mythos Analyzer (Dominion Labs, STRIDE pattern detection with file-and-line findings)</div>
             <div class="tool">Agent Hardener (AI safety validation)</div>
             <div class="tool">NIST AI Risk Management Framework (AI 600-1)</div>
@@ -620,10 +623,35 @@
         </div>
     </section>
 
+    <!-- Coverage -->
+    <section class="trust">
+        <h3>What this finds, and what it does not</h3>
+        <p style="max-width:70ch;margin:0 auto 1rem;">
+            Detection is rule-based, not dataflow analysis. We measure it against
+            benchmarks with vulnerabilities planted at known lines, and we publish the
+            number that is <em>not</em> flattering, because a security report you cannot
+            calibrate is worse than none.
+        </p>
+        <p style="max-width:70ch;margin:0 auto 1rem;">
+            <strong>On weakness classes the rules already cover, recall is high. On a
+            held-out set written afterwards and scored once &mdash; classes the rules had
+            never seen &mdash; recall was 10%.</strong> Your codebase is a held-out set by
+            definition. Use this to find what it knows how to find; do not use it to
+            conclude a codebase is sound.
+        </p>
+        <p style="max-width:70ch;margin:0 auto;">
+            Covered: Python and JavaScript/TypeScript source, plus dependency advisories.
+            Every report states what was <em>not</em> examined &mdash; unread languages,
+            dependencies whose version could not be resolved, and any engine that failed.
+            A partial audit is never delivered as a whole one. Static analysis only: no
+            code is executed and no live system is touched.
+        </p>
+    </section>
+
     <!-- CTA Section -->
     <section class="cta-section" id="contact">
         <h2>Start Your Security Assessment Today</h2>
-        <p>Get a professional security baseline in as little as 2 hours. Book a Security Snapshot or discuss which tier matches your needs.</p>
+        <p>A fixed-scope security baseline, delivered within three business days. Book a Security Snapshot or discuss which tier matches your needs.</p>
         <a href="https://buy.stripe.com/eVq4gzfHU9ZD7V0e1weQM0a" class="cta-button">Book a Security Snapshot &mdash; $500</a>
         <a href="#" class="cta-button dl-mail" data-u="brayd" data-d="dominionlabs.ai" rel="nofollow" style="margin-left:0.75rem;background:transparent;border:1px solid #818cf8;">Or schedule a 30-min call</a>
     </section>
