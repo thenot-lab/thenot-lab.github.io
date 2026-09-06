@@ -612,6 +612,7 @@
         <div class="tools-list">
             <div class="tool">Guardian (Dominion Labs static analysis: secrets, injection, unsafe calls, CORS, error disclosure)</div>
             <div class="tool">CWE rule set (22 weakness classes, Python and JavaScript/TypeScript)</div>
+            <div class="tool">Semgrep (AST rule packs: p/default, p/security-audit)</div>
             <div class="tool">OSV (open source vulnerability database, for dependencies)</div>
             <div class="tool">Mythos Analyzer (Dominion Labs, STRIDE pattern detection with file-and-line findings)</div>
             <div class="tool">Agent Hardener (AI safety validation)</div>
@@ -635,7 +636,7 @@
         <p style="max-width:70ch;margin:0 auto 1rem;">
             <strong>On weakness classes the rules already cover, recall is high. On a
             held-out set written afterwards and scored once &mdash; classes the rules had
-            never seen &mdash; recall was 10%.</strong> Your codebase is a held-out set by
+            never seen &mdash; recall was 40%.</strong> Your codebase is a held-out set by
             definition. Use this to find what it knows how to find; do not use it to
             conclude a codebase is sound.
         </p>
