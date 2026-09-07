@@ -15,10 +15,51 @@ Exit 1 on any DEAD link. Exit 2 when the only revenue path is UNVERIFIABLE -- be
 "we cannot tell whether anyone can pay us" is a finding, not a pass.
 """
 from __future__ import annotations
-import re, sys, urllib.request, urllib.error
+import datetime as _dt
+import json, re, sys, urllib.request, urllib.error
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+NLI = chr(10)
+
+
+# HUMAN VERIFICATION, CARRIED FORWARD AND AGED.
+# HTTP cannot separate a live payment link from a dead one -- both return 200 and a
+# byte-identical shell. A person in a browser can: a live link renders a Pay button,
+# a dead one renders "no longer active" and offers nothing to click.
+#
+# Throwing that answer away on every run would be as dishonest as inventing one. So it
+# is recorded in cta_verified.json -- and it EXPIRES. A confirmation from six months ago
+# is not a confirmation, and stale must read as unverified rather than quietly as green.
+def _load_verified():
+    f = ROOT / "cta_verified.json"
+    if not f.exists():
+        return {}, 30
+    try:
+        d = json.loads(f.read_text(encoding="utf-8"))
+    except Exception as e:
+        print(f"WARNING: cta_verified.json is unreadable ({e}); treating all links as unverified")
+        return {}, 30
+    return d.get("verified", {}), int(d.get("stale_after_days", 30))
+
+
+VERIFIED, STALE_DAYS = _load_verified()
+
+
+def _verdict(url):
+    """Return (state, note) where state is 'fresh', 'stale' or 'none'."""
+    rec = VERIFIED.get(url)
+    if not rec:
+        return "none", ""
+    try:
+        age = (_dt.date.today() - _dt.date.fromisoformat(rec["date"])).days
+    except Exception:
+        return "none", ""
+    who = rec.get("by", "unknown")
+    if age > STALE_DAYS:
+        return "stale", f'last confirmed {rec["date"]} by {who} -- {age}d old, past the {STALE_DAYS}d window'
+    return "fresh", f'confirmed LIVE {rec["date"]} by {who} ({age}d ago) -- {rec.get("evidence", "")}'
+
 UA = {"User-Agent": "Mozilla/5.0 (compatible; DominionCTACheck/1.0)"}
 HREF = re.compile(r'href="([^"]+)"')
 DLMAIL = re.compile(r'class="[^"]*dl-mail')
@@ -59,11 +100,24 @@ for p in pages:
         if "buy.stripe.com" in h or "checkout.stripe.com" in h:
             st, _ = head(h)
             # 200 here means the SHELL loaded. It does not mean the link is active.
-            unverifiable.append(
-                f"{p.name}: {h}\n"
-                f"      HTTP {st} -- but a deactivated link returns 200 and an identical shell.\n"
-                f"      Settle it with: a real browser, or the Stripe dashboard/API."
-            )
+            state, note = _verdict(h)
+            if st is None or st >= 400:
+                dead.append(f"{p.name}: {h} -> HTTP {st} -- the shell itself did not load")
+            elif state == "fresh":
+                ok.append(f"{p.name}: {h}" + NLI + f"      HTTP {st}, and {note}")
+            elif state == "stale":
+                unverifiable.append(
+                    f"{p.name}: {h}" + NLI
+                    + f"      HTTP {st} proves nothing here, and the human check EXPIRED." + NLI
+                    + f"      {note}" + NLI
+                    + "      Re-open it in a browser and update cta_verified.json."
+                )
+            else:
+                unverifiable.append(
+                    f"{p.name}: {h}" + NLI
+                    + f"      HTTP {st} -- but a deactivated link returns 200 and an identical shell." + NLI
+                    + "      Settle it in a real browser, then record it in cta_verified.json."
+                )
             continue
 
         if h.startswith("http"):

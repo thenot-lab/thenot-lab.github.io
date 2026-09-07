@@ -1,0 +1,14 @@
+{
+  "_why": "HTTP cannot tell a live Stripe payment link from a dead one -- both return 200 and a byte-identical shell. Only a human in a real browser can. This file carries that answer forward so the guard reports what IS known instead of discarding it, and ages it so a stale confirmation stops counting as a fresh one.",
+  "_how_to_verify": "Open the URL. A LIVE link renders a payment form with a working Pay button. A DEAD one says the link is no longer active and offers nothing to click.",
+  "verified": {
+    "https://buy.stripe.com/eVq4gzfHU9ZD7V0e1weQM0a": {
+      "date": "2026-09-07",
+      "by": "Brayd, real browser",
+      "result": "live",
+      "evidence": "payment form rendered; clicking Pay initiated an auth flow. A deactivated link cannot render a Pay button.",
+      "confidence": "reached payment auth, not a completed charge"
+    }
+  },
+  "stale_after_days": 30
+}
