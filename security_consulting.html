@@ -192,6 +192,33 @@
             border-color: rgba(129, 140, 248, 0.8);
         }
 
+        /* Snapshot terms: reuses .service-card, only sizes it and keeps it still */
+        .snapshot-terms {
+            max-width: 760px;
+            margin: 2.5rem auto 0;
+            scroll-margin-top: 5rem;
+        }
+
+        .snapshot-terms:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .snapshot-terms ul {
+            margin-bottom: 1.25rem;
+        }
+
+        .snapshot-terms p {
+            color: #d1d5db;
+            margin-bottom: 1rem;
+        }
+
+        .snapshot-terms a {
+            color: #818cf8;
+            font-weight: 600;
+        }
+
         /* Methodology Section */
         .methodology {
             padding: 6rem 2rem;
@@ -442,7 +469,9 @@
     <section class="hero">
         <h1>Security Assessments You Can Check</h1>
         <p>Fixed-scope defensive security assessments for growing companies, built on public standards you can verify: the <strong>OWASP LLM Top&nbsp;10</strong>, <strong>MITRE ATLAS</strong>, <strong>NIST AI RMF (AI 600-1)</strong> and <strong>STRIDE</strong> threat modelling. Every finding cites the standard it comes from, so you can check the work rather than take it on trust.</p>
-        <a href="https://buy.stripe.com/eVq4gzfHU9ZD7V0e1weQM0a" class="cta-button">Book a Security Snapshot &mdash; US$500</a>
+        <a href="#" class="cta-button dl-mail" data-u="brayd" data-d="dominionlabs.ai" data-s="Security Snapshot request" rel="nofollow">Request a Security Snapshot &mdash; US$500</a>
+        <p style="font-size:0.95rem;color:#9ca3af;margin:1rem auto 0;">No payment up front. You pay only if you accept the report. <a href="#snapshot-terms" style="color:#818cf8;">How it works</a>
+        <noscript>Scripts are off, so the button cannot open your email. Write to brayd [at] dominionlabs.ai instead, with the subject &ldquo;Security Snapshot request&rdquo;.</noscript></p>
     </section>
 
     <!-- Service Tiers -->
@@ -464,7 +493,7 @@
                     <li>Every finding ranked by severity, with exact file and line</li>
                     <li>Executive summary + remediation guide</li>
                 </ul>
-                <a href="https://buy.stripe.com/eVq4gzfHU9ZD7V0e1weQM0a" class="cta">Start Snapshot</a>
+                <a href="#" class="cta dl-mail" data-u="brayd" data-d="dominionlabs.ai" data-s="Security Snapshot request" rel="nofollow">Request Snapshot</a>
             </div>
 
             <!-- Defensive Assessment -->
@@ -499,6 +528,21 @@
                 </ul>
                 <a href="mailto:brayd@dominionlabs.ai?subject=Enterprise%20Hardening%20enquiry" class="cta">Discuss Enterprise Plan</a>
             </div>
+        </div>
+
+        <!-- Snapshot terms -->
+        <div class="service-card snapshot-terms" id="snapshot-terms">
+            <h3>How the Security Snapshot works</h3>
+            <ul>
+                <li><strong>No money up front.</strong></li>
+                <li>You email us where the code is and your written permission to scan it.</li>
+                <li>You get the report within 3 business days of us having both.</li>
+                <li>You pay US$500, through the payment link below, only if you accept the report.</li>
+                <li>If you do not accept the report, you owe nothing.</li>
+            </ul>
+            <div class="duration">Limits: one codebase, Python or JavaScript/TypeScript, up to about 10,000 lines. Static analysis only. Read &ldquo;What this finds, and what it does not&rdquo; further down before you request a Snapshot.</div>
+            <p>Report in hand and accepted? <a href="https://buy.stripe.com/eVq4gzfHU9ZD7V0e1weQM0a">Pay for a report you have accepted &mdash; US$500</a></p>
+            <noscript><p class="duration">Scripts are off, so the request buttons cannot open your email. Write to brayd [at] dominionlabs.ai instead, with the subject &ldquo;Security Snapshot request&rdquo;.</p></noscript>
         </div>
     </section>
 
@@ -604,6 +648,9 @@
                 </tr>
             </tbody>
         </table>
+
+        <!-- TODO-SAMPLE: wire this line to a real sample report (a Snapshot run on the seller's own public code) once one exists: change href="#samples" to the report's address and the link text to match. Until then the line says plainly that no sample is published. If no sample will be made, delete this paragraph. -->
+        <p class="findings-subtitle" style="margin-bottom:0;">A real sample report, run on our own public code, is not published yet: <a href="#samples" style="color:#818cf8;">link to be added</a>.</p>
     </section>
 
     <!-- Trust Signals -->
@@ -652,9 +699,9 @@
     <!-- CTA Section -->
     <section class="cta-section" id="contact">
         <h2>Start Your Security Assessment Today</h2>
-        <p>A fixed-scope security baseline, delivered within three business days. Book a Security Snapshot or discuss which tier matches your needs.</p>
-        <a href="https://buy.stripe.com/eVq4gzfHU9ZD7V0e1weQM0a" class="cta-button">Book a Security Snapshot &mdash; US$500</a>
-        <a href="#" class="cta-button dl-mail" data-u="brayd" data-d="dominionlabs.ai" rel="nofollow" style="margin-left:0.75rem;background:transparent;border:1px solid #818cf8;">Or schedule a 30-min call</a>
+        <p>A fixed-scope security baseline, delivered within three business days. Request a Security Snapshot with no payment up front, or discuss which tier matches your needs.</p>
+        <a href="#" class="cta-button dl-mail" data-u="brayd" data-d="dominionlabs.ai" data-s="Security Snapshot request" rel="nofollow">Request a Security Snapshot &mdash; US$500</a>
+        <a href="#" class="cta-button dl-mail" data-u="brayd" data-d="dominionlabs.ai" data-s="Call request" rel="nofollow" style="margin-left:0.75rem;background:transparent;border:1px solid #818cf8;">Or email us to arrange a 30-min call</a>
     </section>
 
     <!-- Footer -->
@@ -672,7 +719,7 @@
                 element.scrollIntoView({ behavior: 'smooth' });
             }
         }
-        document.querySelectorAll('a.dl-mail').forEach(function(a){var e=a.dataset.u+'@'+a.dataset.d;a.href='mailto:'+e;if(/\[at\]/.test(a.textContent))a.textContent=e;});
+        document.querySelectorAll('a.dl-mail').forEach(function(a){var e=a.dataset.u+'@'+a.dataset.d;a.href='mailto:'+e+(a.dataset.s?'?subject='+encodeURIComponent(a.dataset.s):'');if(/\[at\]/.test(a.textContent))a.textContent=e;});
     </script>
 </body>
 </html>
