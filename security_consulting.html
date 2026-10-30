@@ -468,7 +468,7 @@
     <!-- Hero Section -->
     <section class="hero">
         <h1>Security Assessments You Can Check</h1>
-        <p>Fixed-scope defensive security assessments for growing companies, built on public standards you can verify: the <strong>OWASP LLM Top&nbsp;10</strong>, <strong>MITRE ATLAS</strong>, <strong>NIST AI RMF (AI 600-1)</strong> and <strong>STRIDE</strong> threat modelling. Every finding cites the standard it comes from, so you can check the work rather than take it on trust.</p>
+        <p>Fixed-scope defensive security assessments for growing companies, built on public standards you can verify: the <strong>OWASP LLM Top&nbsp;10</strong>, <strong>MITRE ATLAS</strong>, <strong>NIST AI RMF (AI 600-1)</strong> and <strong>STRIDE</strong> threat modelling. Each finding gives the file and line, the evidence and the fix, and every report lists what was not examined, so you can check the work rather than take it on trust.</p>
         <a href="#" class="cta-button dl-mail" data-u="brayd" data-d="dominionlabs.ai" data-s="Security Snapshot request" rel="nofollow">Request a Security Snapshot &mdash; US$500</a>
         <p style="font-size:0.95rem;color:#9ca3af;margin:1rem auto 0;">No payment up front. You pay only if you accept the report. <a href="#snapshot-terms" style="color:#818cf8;">How it works</a>
         <noscript>Scripts are off, so the button cannot open your email. Write to brayd [at] dominionlabs.ai instead, with the subject &ldquo;Security Snapshot request&rdquo;.</noscript></p>
@@ -574,7 +574,7 @@
 
             <div class="methodology-item">
                 <h3>Guardian Static Analysis</h3>
-                <p>Our proprietary engine scans for security anti-patterns, misconfigurations, and AI-specific risks across all code paths. Findings are triaged and verified before they reach you, each with the check that confirms it.</p>
+                <p>Our proprietary engine scans for security anti-patterns, misconfigurations, and AI-specific risks across all code paths. A person reads and triages the findings before delivery and removes the false alarms they can identify.</p>
             </div>
 
             <div class="methodology-item">
@@ -661,9 +661,7 @@
             <div class="tool">Semgrep (AST rule packs: p/default, p/security-audit)</div>
             <div class="tool">OSV (open source vulnerability database, for dependencies)</div>
             <div class="tool">Mythos Analyzer (Dominion Labs, STRIDE pattern detection with file-and-line findings)</div>
-            <div class="tool">Agent Hardener (AI safety validation)</div>
             <div class="tool">NIST AI Risk Management Framework (AI 600-1)</div>
-            <div class="tool">Agents of Chaos (Dominion Labs internal failure-mode taxonomy, 8 modes)</div>
             <div class="tool">STRIDE threat modeling</div>
             <div class="tool">OWASP Top 10 + AI extensions</div>
             <div class="tool">MITRE ATLAS (adversarial ML threat matrix)</div>
@@ -680,9 +678,9 @@
             calibrate is worse than none.
         </p>
         <p style="max-width:70ch;margin:0 auto 1rem;">
-            <strong>On weakness classes the rules already cover, recall is high. On a
-            held-out set written afterwards and scored once &mdash; classes the rules had
-            never seen &mdash; recall was 40%.</strong> Your codebase is a held-out set by
+            <strong>On weakness classes the rules already cover, recall is high. On two
+            held-out sets written afterwards and scored once &mdash; classes the rules had
+            never seen &mdash; and without the optional private analyser, recall was 10 to 20 percent.</strong> Your codebase is a held-out set by
             definition. Use this to find what it knows how to find; do not use it to
             conclude a codebase is sound.
         </p>
